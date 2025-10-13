@@ -159,10 +159,12 @@ function App() {
   const handleAdminYes = () => setAdminStep(1);
   const handleAdminNo = () => {
     setAdminStep(2);
-    setTimeout(() => {
-      setAdminDialogOpen(false);
-      setActiveTab('summary');
-    }, 1800);
+  };
+
+  // Handler for closing the roast dialog and redirecting to summary
+  const handleRoastClose = () => {
+    setAdminDialogOpen(false);
+    setActiveTab('summary');
   };
   const handleAdminPassword = () => {
     if (adminPassword === import.meta.env.VITE_ADMIN_PASSWORD) {
@@ -371,16 +373,16 @@ function App() {
       <Dialog open={adminDialogOpen} onClose={() => setAdminDialogOpen(false)}>
         {adminStep === 0 && (
           <>
-            <DialogTitle>Are you an Admin?</DialogTitle>
+            <DialogTitle>Do you think you have enough <span style={{color:'#a855f7'}}>Aura</span> to add a Strike?</DialogTitle>
             <DialogActions>
-              <Button onClick={handleAdminYes} color="primary">Yes</Button>
-              <Button onClick={handleAdminNo} color="secondary">No</Button>
+              <Button onClick={handleAdminYes} color="primary">Bet 💫</Button>
+              <Button onClick={handleAdminNo} color="secondary">Nah 😅</Button>
             </DialogActions>
           </>
         )}
         {adminStep === 1 && (
           <>
-            <DialogTitle>Enter Admin Password</DialogTitle>
+            <DialogTitle>Drop your secret sauce to prove your vibe</DialogTitle>
             <DialogContent>
               <TextField
                 autoFocus
@@ -401,14 +403,19 @@ function App() {
               />
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleAdminPassword} color="primary">Submit</Button>
-              <Button onClick={() => setAdminDialogOpen(false)} color="secondary">Cancel</Button>
+              <Button onClick={handleAdminPassword} color="primary">Flex 💪</Button>
+              <Button onClick={() => setAdminDialogOpen(false)} color="secondary">Back Out 🚪</Button>
             </DialogActions>
           </>
         )}
         {adminStep === 2 && (
           <>
-            <DialogTitle>Then, Why the hell are you here? Get lost!!! <span role="img" aria-label="knife">🔪</span></DialogTitle>
+            <DialogTitle>
+              Touch grass, come back with some real main character energy. <span role="img" aria-label="skull">💀</span>
+            </DialogTitle>
+            <DialogActions>
+              <Button onClick={handleRoastClose} color="primary">Skibidi Out!! 😭</Button>
+            </DialogActions>
           </>
         )}
       </Dialog>
