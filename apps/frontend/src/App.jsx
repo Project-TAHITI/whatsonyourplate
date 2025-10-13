@@ -65,6 +65,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('summary');
   const [selectedUserIndex, setSelectedUserIndex] = useState(0);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const [openTip, setOpenTip] = useState(null);
   const dailyTableWrapperRef = React.useRef(null);
   const weeklyTableWrapperRef = React.useRef(null);
 
@@ -304,13 +305,44 @@ function App() {
                                 const goalsForDate = user.daily_goals[date] || [];
                                 const found = goalsForDate.find(g => g.goal === goalName);
                                 const done = found ? !!found.completed : false;
+                                const hasComment = found && found.comments;
+                                const isTouch = typeof window !== 'undefined' && 'ontouchstart' in window;
+                                const tipKey = `daily|${goalName}|${date}`;
+                                const handleTouch = e => {
+                                  if (hasComment) {
+                                    e.preventDefault();
+                                    setOpenTip(openTip && openTip.key === tipKey ? null : { key: tipKey, comment: found.comments });
+                                  }
+                                };
                                 return (
                                   <td
                                     key={date}
                                     className={done ? 'cell-yes' : 'cell-no'}
-                                    title={found && found.comments ? found.comments : undefined}
+                                    title={!isTouch && hasComment ? found.comments : undefined}
+                                    onPointerDown={handleTouch}
+                                    style={{position:'relative'}}
                                   >
                                     {done ? '✔' : '✗'}
+                                    {openTip && openTip.key === tipKey && hasComment && (
+                                      <div style={{
+                                        position:'absolute',
+                                        left:'50%',
+                                        top:'100%',
+                                        transform:'translateX(-50%)',
+                                        background:'#fff8e1',
+                                        color:'#b71c1c',
+                                        border:'1px solid #fbc02d',
+                                        borderRadius:4,
+                                        padding:'4px 8px',
+                                        fontSize:'0.95em',
+                                        zIndex:10,
+                                        boxShadow:'0 2px 8px rgba(0,0,0,0.12)',
+                                        marginTop:2,
+                                        minWidth:80,
+                                        maxWidth:180,
+                                        wordBreak:'break-word',
+                                      }}>{found.comments}</div>
+                                    )}
                                   </td>
                                 );
                               })}
@@ -347,13 +379,44 @@ function App() {
                                 const goalsForWeek = user.weekly_goals[week] || [];
                                 const found = goalsForWeek.find(g => g.goal === goalName);
                                 const done = found ? !!found.completed : false;
+                                const hasComment = found && found.comments;
+                                const isTouch = typeof window !== 'undefined' && 'ontouchstart' in window;
+                                const tipKey = `weekly|${goalName}|${week}`;
+                                const handleTouch = e => {
+                                  if (hasComment) {
+                                    e.preventDefault();
+                                    setOpenTip(openTip && openTip.key === tipKey ? null : { key: tipKey, comment: found.comments });
+                                  }
+                                };
                                 return (
                                   <td
                                     key={week}
                                     className={done ? 'cell-yes' : 'cell-no'}
-                                    title={found && found.comments ? found.comments : goalName}
+                                    title={!isTouch && hasComment ? found.comments : undefined}
+                                    onPointerDown={handleTouch}
+                                    style={{position:'relative'}}
                                   >
                                     {done ? '✔' : '✗'}
+                                    {openTip && openTip.key === tipKey && hasComment && (
+                                      <div style={{
+                                        position:'absolute',
+                                        left:'50%',
+                                        top:'100%',
+                                        transform:'translateX(-50%)',
+                                        background:'#fff8e1',
+                                        color:'#b71c1c',
+                                        border:'1px solid #fbc02d',
+                                        borderRadius:4,
+                                        padding:'4px 8px',
+                                        fontSize:'0.95em',
+                                        zIndex:10,
+                                        boxShadow:'0 2px 8px rgba(0,0,0,0.12)',
+                                        marginTop:2,
+                                        minWidth:80,
+                                        maxWidth:180,
+                                        wordBreak:'break-word',
+                                      }}>{found.comments}</div>
+                                    )}
                                   </td>
                                 );
                               })}
