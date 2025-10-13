@@ -6,6 +6,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { supabase } from './supabaseClient';
+import { Analytics } from "@vercel/analytics/next"
 
 // Render vertical tally marks: 4 pipes + 1 slash for each group of 5, then up to 4 pipes
 
@@ -434,6 +435,7 @@ function App() {
           )}
         </>
       )}
+      <Analytics />
     </div>
   );
 }
