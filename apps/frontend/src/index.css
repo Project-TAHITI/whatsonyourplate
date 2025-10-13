@@ -149,8 +149,12 @@ body {
 }
 
 .strike-num {
-    font-size: 0.85rem;
-    color: #666;
+    font-size: 2.4rem;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: 0.01em;
+    color: #d32f2f;
+    text-shadow: 0 2px 8px rgba(211, 47, 47, 0.10);
 }
 
 .goal-table {
