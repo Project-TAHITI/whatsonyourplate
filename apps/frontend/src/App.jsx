@@ -250,7 +250,7 @@ function App() {
                 .filter(date => {
                   // date is in YYYY-MM-DD
                   const d = new Date(date + 'T23:59:59');
-                  return d < today;
+                  return d <= today;
                 })
                 .sort();
               const dailyGoalSet = new Set();
@@ -272,7 +272,7 @@ function App() {
                   const [yearStr, wStr] = week.split('-W');
                   const year = parseInt(yearStr, 10);
                   const w = parseInt(wStr, 10);
-                  return year < currentYear || (year === currentYear && w < currentWeek);
+                  return year < currentYear || (year === currentYear && w <= currentWeek);
                 })
                 .sort();
               const weeklyGoalSet = new Set();
