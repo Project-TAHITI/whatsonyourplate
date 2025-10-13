@@ -9,6 +9,13 @@ import { supabase } from './supabaseClient';
 import StrikeSummary from './components/StrikeSummary';
 import GoalTable from './components/GoalTable';
 import { tallyMarks, getStrikeCount } from './utils/tallyUtils.jsx';
+import AddStrike from './components/AddStrike.jsx';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 
 function App() {
   const [data, setData] = useState([]);
@@ -18,6 +25,10 @@ function App() {
   const [selectedUserIndex, setSelectedUserIndex] = useState(0);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   const [openTip, setOpenTip] = useState(null);
+  const [adminDialogOpen, setAdminDialogOpen] = useState(false);
+  const [adminStep, setAdminStep] = useState(0); // 0: ask, 1: password, 2: not admin
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminError, setAdminError] = useState('');
   const dailyTableWrapperRef = useRef(null);
   const weeklyTableWrapperRef = useRef(null);
 
@@ -132,6 +143,36 @@ function App() {
   );
   const selectedUser = data[selectedUserIndex];
 
+  // Tab change handler: open AddStrike with admin dialog
+  const handleTabChange = (_, v) => {
+    if (v === 'addStrike') {
+      setAdminDialogOpen(true);
+      setAdminStep(0);
+      setAdminPassword('');
+      setAdminError('');
+    } else {
+      setActiveTab(v);
+    }
+  };
+
+  // Admin dialog actions
+  const handleAdminYes = () => setAdminStep(1);
+  const handleAdminNo = () => {
+    setAdminStep(2);
+    setTimeout(() => {
+      setAdminDialogOpen(false);
+      setActiveTab('summary');
+    }, 1800);
+  };
+  const handleAdminPassword = () => {
+    if (adminPassword === import.meta.env.VITE_ADMIN_PASSWORD) {
+      setAdminDialogOpen(false);
+      setActiveTab('addStrike');
+    } else {
+      setAdminError('Incorrect password');
+    }
+  };
+
   return (
     <div className="app-container">
       <h1 className="app-title">Whats On Your Plate</h1>
@@ -141,12 +182,13 @@ function App() {
         <ToggleButtonGroup
           value={activeTab}
           exclusive
-          onChange={(_, v) => v && setActiveTab(v)}
+          onChange={handleTabChange}
           aria-label="summary-tracker-toggle"
           color="primary"
         >
           <ToggleButton value="summary" aria-label="Summary">Summary</ToggleButton>
           <ToggleButton value="tracker" aria-label="Tracker">Tracker</ToggleButton>
+          <ToggleButton value="addStrike" aria-label="AddStrike">Add Strike</ToggleButton>
         </ToggleButtonGroup>
       </Box>
 
@@ -160,7 +202,7 @@ function App() {
         />
       )}
 
-      {/* Tracker view as per-user MUI Tabs */}
+      {/* Tracker view */}
       {activeTab === 'tracker' && (
         <>
           <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
@@ -180,7 +222,6 @@ function App() {
           {selectedUser ? (
             (() => {
               const user = selectedUser;
-
 
               // Only show daily goals for dates before today
               const today = new Date();
@@ -267,6 +308,110 @@ function App() {
           )}
         </>
       )}
+
+      {/* AddStrike view */}
+      {activeTab === 'addStrike' && (
+        <AddStrike
+          users={data.map(u => ({ user_id: u.user_id, user_name: usersMap[u.user_id] }))}
+          dailyGoals={(() => {
+            const obj = {};
+            data.forEach(u => {
+              // Collect all daily goals for this user
+              const goals = Object.values(u.daily_goals || {}).flat().map(g => g.goal);
+              obj[u.user_id] = Array.from(new Set(goals));
+            });
+            return obj;
+          })()}
+          weeklyGoals={(() => {
+            const obj = {};
+            data.forEach(u => {
+              // Collect all weekly goals for this user
+              const goals = Object.values(u.weekly_goals || {}).flat().map(g => g.goal);
+              obj[u.user_id] = Array.from(new Set(goals));
+            });
+            return obj;
+          })()}
+          weeks={Array.from(new Set(
+            data.flatMap(u => Object.keys(u.weekly_goals || {}))
+          )).sort()}
+          onEdit={async info => {
+            // info: { user_id, goalType, goal, date, week, comments }
+            let table, matchObj;
+            if (info.goalType === 'daily') {
+              table = 'daily_goal_tracker';
+              matchObj = {
+                user_id: info.user_id,
+                date: info.date instanceof Date ? info.date.toISOString().slice(0,10) : info.date,
+                goal: info.goal
+              };
+            } else {
+              table = 'weekly_goal_tracker';
+              matchObj = {
+                user_id: info.user_id,
+                week: info.week,
+                goal: info.goal
+              };
+            }
+            const { error } = await supabase
+              .from(table)
+              .update({ completed: false, comments: info.comments })
+              .match(matchObj);
+            if (error) {
+              alert('Failed to update DB: ' + error.message);
+            } else {
+              alert('Strike added!');
+              // Optionally, refresh data
+              // fetchData();
+            }
+          }}
+        />
+      )}
+
+      {/* Admin Dialogs */}
+      <Dialog open={adminDialogOpen} onClose={() => setAdminDialogOpen(false)}>
+        {adminStep === 0 && (
+          <>
+            <DialogTitle>Are you an Admin?</DialogTitle>
+            <DialogActions>
+              <Button onClick={handleAdminYes} color="primary">Yes</Button>
+              <Button onClick={handleAdminNo} color="secondary">No</Button>
+            </DialogActions>
+          </>
+        )}
+        {adminStep === 1 && (
+          <>
+            <DialogTitle>Enter Admin Password</DialogTitle>
+            <DialogContent>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Password"
+                type="password"
+                fullWidth
+                value={adminPassword}
+                onChange={e => { setAdminPassword(e.target.value); setAdminError(''); }}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAdminPassword();
+                  }
+                }}
+                error={!!adminError}
+                helperText={adminError}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleAdminPassword} color="primary">Submit</Button>
+              <Button onClick={() => setAdminDialogOpen(false)} color="secondary">Cancel</Button>
+            </DialogActions>
+          </>
+        )}
+        {adminStep === 2 && (
+          <>
+            <DialogTitle>Then, Why the hell are you here? Get lost!!! <span role="img" aria-label="knife">🔪</span></DialogTitle>
+          </>
+        )}
+      </Dialog>
     </div>
   );
 }
