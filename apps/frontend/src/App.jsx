@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './index.css';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -6,58 +6,9 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { supabase } from './supabaseClient';
-import { Analytics } from "@vercel/analytics/next"
-
-// Render vertical tally marks: 4 pipes + 1 slash for each group of 5, then up to 4 pipes
-
-function TallySVG({ count }) {
-  // count: 1-4 (vertical bars), 5 (4 bars + diagonal)
-  const barX = [3, 8, 13, 18];
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" style={{verticalAlign:'middle'}}>
-      {/* Draw up to 4 vertical bars */}
-      {Array.from({length: Math.min(count,4)}).map((_, i) => (
-        <line key={i} x1={barX[i]} y1="3" x2={barX[i]} y2="19" stroke="currentColor" strokeWidth="2" />
-      ))}
-      {/* Diagonal strike for 5th */}
-      {count === 5 && (
-        <line x1="2" y1="18" x2="19" y2="4" stroke="currentColor" strokeWidth="2.2" />
-      )}
-    </svg>
-  );
-}
-
-function tallyMarks(count) {
-  if (count === 0) return '✔';
-  let blocks = [];
-  let fives = Math.floor(count / 5);
-  let rest = count % 5;
-  for (let i = 0; i < fives; i++) {
-    blocks.push(
-      <span className="tally-group" key={i} style={{display:'inline-block', verticalAlign:'middle', marginRight:2}}>
-        <TallySVG count={5} />
-      </span>
-    );
-  }
-  if (rest > 0) {
-    blocks.push(
-      <span className="tally-group" key={fives} style={{display:'inline-block', verticalAlign:'middle', marginRight:2}}>
-        <TallySVG count={rest} />
-      </span>
-    );
-  }
-  return <span className="tally-vertical">{blocks}</span>;
-}
-
-function getStrikeCount(goals) {
-  let strikes = 0;
-  Object.values(goals).forEach(goalArr => {
-    goalArr.forEach(g => {
-      if (!g.completed) strikes++;
-    });
-  });
-  return strikes;
-}
+import StrikeSummary from './components/StrikeSummary';
+import GoalTable from './components/GoalTable';
+import { tallyMarks, getStrikeCount } from './utils/tallyUtils.jsx';
 
 function App() {
   const [data, setData] = useState([]);
@@ -67,8 +18,8 @@ function App() {
   const [selectedUserIndex, setSelectedUserIndex] = useState(0);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   const [openTip, setOpenTip] = useState(null);
-  const dailyTableWrapperRef = React.useRef(null);
-  const weeklyTableWrapperRef = React.useRef(null);
+  const dailyTableWrapperRef = useRef(null);
+  const weeklyTableWrapperRef = useRef(null);
 
   // Auto-scroll to right for daily/weekly tables if columns > 10
   React.useEffect(() => {
@@ -201,23 +152,12 @@ function App() {
 
       {/* Summary view */}
       {activeTab === 'summary' && (
-        <section className="strike-summary">
-          <h2>Strikes Summary</h2>
-          <div className="strike-grid">
-            {data.map(user => {
-              const dailyStrikes = getStrikeCount(user.daily_goals);
-              const weeklyStrikes = getStrikeCount(user.weekly_goals);
-              const totalStrikes = dailyStrikes + weeklyStrikes;
-              return (
-                <div className="strike-card" key={user.user_id} title={`${usersMap[user.user_id] || user.user_id}: ${totalStrikes} strikes`}>
-                  <div className="strike-user">{usersMap[user.user_id] || user.user_id}</div>
-                  <div className="strike-num">{totalStrikes}</div>
-                  <div className="strike-count">{tallyMarks(totalStrikes)}</div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
+        <StrikeSummary
+          data={data}
+          usersMap={usersMap}
+          getStrikeCount={getStrikeCount}
+          tallyMarks={tallyMarks}
+        />
       )}
 
       {/* Tracker view as per-user MUI Tabs */}
@@ -289,68 +229,14 @@ function App() {
                     {dates.length === 0 || dailyGoalNames.length === 0 ? (
                       <div>No daily goals available</div>
                     ) : (
-                      <table className="goal-table">
-                        <thead>
-                          <tr>
-                            <th>Goal</th>
-                            {dates.map(date => (
-                              <th key={date}>{date}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {dailyGoalNames.map(goalName => (
-                            <tr key={goalName}>
-                              <th>{goalName}</th>
-                              {dates.map(date => {
-                                const goalsForDate = user.daily_goals[date] || [];
-                                const found = goalsForDate.find(g => g.goal === goalName);
-                                const done = found ? !!found.completed : false;
-                                const hasComment = found && found.comments;
-                                const isTouch = typeof window !== 'undefined' && 'ontouchstart' in window;
-                                const tipKey = `daily|${goalName}|${date}`;
-                                const handleTouch = e => {
-                                  if (hasComment) {
-                                    e.preventDefault();
-                                    setOpenTip(openTip && openTip.key === tipKey ? null : { key: tipKey, comment: found.comments });
-                                  }
-                                };
-                                return (
-                                  <td
-                                    key={date}
-                                    className={done ? 'cell-yes' : 'cell-no'}
-                                    title={!isTouch && hasComment ? found.comments : undefined}
-                                    onPointerDown={handleTouch}
-                                    style={{position:'relative'}}
-                                  >
-                                    {done ? '✔' : '✗'}
-                                    {openTip && openTip.key === tipKey && hasComment && (
-                                      <div style={{
-                                        position:'absolute',
-                                        left:'50%',
-                                        top:'100%',
-                                        transform:'translateX(-50%)',
-                                        background:'#fff8e1',
-                                        color:'#b71c1c',
-                                        border:'1px solid #fbc02d',
-                                        borderRadius:4,
-                                        padding:'4px 8px',
-                                        fontSize:'0.95em',
-                                        zIndex:10,
-                                        boxShadow:'0 2px 8px rgba(0,0,0,0.12)',
-                                        marginTop:2,
-                                        minWidth:80,
-                                        maxWidth:180,
-                                        wordBreak:'break-word',
-                                      }}>{found.comments}</div>
-                                    )}
-                                  </td>
-                                );
-                              })}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                      <GoalTable
+                        type="daily"
+                        goalNames={dailyGoalNames}
+                        periods={dates}
+                        userGoals={user.daily_goals}
+                        openTip={openTip}
+                        setOpenTip={setOpenTip}
+                      />
                     )}
                   </div>
                   {/* Weekly Goals Table */}
@@ -363,68 +249,14 @@ function App() {
                     {weeks.length === 0 || weeklyGoalNames.length === 0 ? (
                       <div>No weekly goals available</div>
                     ) : (
-                      <table className="goal-table">
-                        <thead>
-                          <tr>
-                            <th>Goal</th>
-                            {weeks.map(week => (
-                              <th key={week}>{week}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {weeklyGoalNames.map(goalName => (
-                            <tr key={goalName}>
-                              <th>{goalName}</th>
-                              {weeks.map(week => {
-                                const goalsForWeek = user.weekly_goals[week] || [];
-                                const found = goalsForWeek.find(g => g.goal === goalName);
-                                const done = found ? !!found.completed : false;
-                                const hasComment = found && found.comments;
-                                const isTouch = typeof window !== 'undefined' && 'ontouchstart' in window;
-                                const tipKey = `weekly|${goalName}|${week}`;
-                                const handleTouch = e => {
-                                  if (hasComment) {
-                                    e.preventDefault();
-                                    setOpenTip(openTip && openTip.key === tipKey ? null : { key: tipKey, comment: found.comments });
-                                  }
-                                };
-                                return (
-                                  <td
-                                    key={week}
-                                    className={done ? 'cell-yes' : 'cell-no'}
-                                    title={!isTouch && hasComment ? found.comments : undefined}
-                                    onPointerDown={handleTouch}
-                                    style={{position:'relative'}}
-                                  >
-                                    {done ? '✔' : '✗'}
-                                    {openTip && openTip.key === tipKey && hasComment && (
-                                      <div style={{
-                                        position:'absolute',
-                                        left:'50%',
-                                        top:'100%',
-                                        transform:'translateX(-50%)',
-                                        background:'#fff8e1',
-                                        color:'#b71c1c',
-                                        border:'1px solid #fbc02d',
-                                        borderRadius:4,
-                                        padding:'4px 8px',
-                                        fontSize:'0.95em',
-                                        zIndex:10,
-                                        boxShadow:'0 2px 8px rgba(0,0,0,0.12)',
-                                        marginTop:2,
-                                        minWidth:80,
-                                        maxWidth:180,
-                                        wordBreak:'break-word',
-                                      }}>{found.comments}</div>
-                                    )}
-                                  </td>
-                                );
-                              })}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                      <GoalTable
+                        type="weekly"
+                        goalNames={weeklyGoalNames}
+                        periods={weeks}
+                        userGoals={user.weekly_goals}
+                        openTip={openTip}
+                        setOpenTip={setOpenTip}
+                      />
                     )}
                   </div>
                 </section>
@@ -435,7 +267,6 @@ function App() {
           )}
         </>
       )}
-      <Analytics />
     </div>
   );
 }
