@@ -1,0 +1,7 @@
+{
+  "npmScope": "whatsonyourplate",
+  "implicitDependencies": {},
+  "affected": {
+    "defaultBase": "main"
+  }
+}

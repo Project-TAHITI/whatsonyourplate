@@ -1,0 +1,225 @@
+body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #f7f7fa;
+    color: #222;
+}
+
+.app-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+    padding: 2rem;
+}
+
+/* Stylish centered header */
+.app-title {
+    text-align: center;
+    margin: 0 0 1.25rem 0;
+    font-size: 2rem;
+    letter-spacing: 0.6px;
+    background: linear-gradient(90deg, #0b63a8, #7bd389);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    position: relative;
+}
+
+.app-title::after {
+    content: '';
+    display: block;
+    width: 120px;
+    height: 4px;
+    background: linear-gradient(90deg, rgba(11,99,168,0.9), rgba(123,211,137,0.9));
+    margin: 10px auto 0 auto;
+    border-radius: 4px;
+    opacity: 0.95;
+}
+
+.user-section {
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 2rem;
+}
+
+.user-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tally {
+    font-size: 2rem;
+    letter-spacing: 0.2em;
+    color: #d32f2f;
+    margin-left: 1rem;
+}
+
+.goal-list {
+    margin: 1rem 0 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.goal-list li {
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    margin-bottom: 0.2rem;
+    display: flex;
+    align-items: center;
+}
+
+.goal-list li.achieved {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.goal-list li.not-achieved {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.goal-date {
+    font-weight: bold;
+    margin-top: 1rem;
+}
+
+.strike-summary {
+    margin-bottom: 1.5rem;
+}
+
+.strike-grid {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.strike-card {
+    background: #fff7f7;
+    border: 1px solid #ffe6e6;
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    min-width: 110px;
+    text-align: center;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.03);
+}
+
+.strike-user {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.strike-count {
+    color: #d32f2f;
+    font-size: 1.25rem;
+}
+
+/* Vertical tally marks styling */
+.tally-vertical {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2px;
+    min-height: 28px;
+    max-width: 100%;
+}
+.tally-group {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    font-size: 1.3em;
+    line-height: 1.1;
+    margin-bottom: 1px;
+}
+.tally-bar {
+    color: #d32f2f;
+    font-weight: 700;
+    margin: 0 1px;
+    font-family: 'Consolas', 'Menlo', 'Monaco', monospace;
+}
+.tally-slash {
+    color: #d32f2f;
+    font-weight: 700;
+    margin-left: 2px;
+    font-family: 'Consolas', 'Menlo', 'Monaco', monospace;
+}
+
+.strike-num {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.goal-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+}
+
+.goal-table th,
+.goal-table td {
+    border: 1px solid #eee;
+    padding: 0.4rem 0.5rem;
+    text-align: center;
+}
+
+.goal-table th {
+    background: #fafafa;
+    font-weight: 600;
+}
+
+.cell-yes {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.cell-no {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+/* Tabs styling */
+.tabs {
+    display: inline-flex;
+    gap: 0.25rem;
+    background: linear-gradient(180deg, #fbfbfc, #f6f7f9);
+    padding: 0.35rem;
+    border-radius: 10px;
+    border: 1px solid #e6e9ee;
+    box-shadow: 0 4px 12px rgba(18,24,40,0.04);
+    margin-bottom: 1rem;
+}
+
+.tab {
+    background: transparent;
+    border: none;
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #333;
+    transition: all 150ms ease;
+}
+
+.tab:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(18,24,40,0.05);
+}
+
+.tab:focus {
+    outline: 2px solid #cfe8ff;
+    outline-offset: 2px;
+}
+
+.tab.active {
+    background: #ffffff;
+    border: 1px solid #dde6f0;
+    box-shadow: 0 6px 18px rgba(18,24,40,0.06);
+    color: #0b3b66;
+}
+
+/* Make tabs responsive and centered */
+.tabs { flex-wrap: wrap; justify-content: flex-start; }

@@ -1,0 +1,17 @@
+{
+  "name": "whatsonyourplate",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Nx workspace for the WhatsonYourPlate project (empty workspace - no apps yet)",
+  "scripts": {
+    "nx": "nx",
+    "start": "echo No apps yet. Use 'npm run nx -- generate' to add one.",
+    "build": "echo No apps to build",
+    "lint": "echo No lint targets"
+  },
+  "devDependencies": {
+    "nx": "17.2.0",
+    "@nrwl/workspace": "17.2.0",
+    "typescript": "5.2.2"
+  }
+}
