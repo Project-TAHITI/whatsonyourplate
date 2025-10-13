@@ -34,8 +34,30 @@ export default function AddStrike({ users, onEdit, dailyGoals = {}, weeklyGoals 
   }
 
   return (
-    <div style={{padding:'2em', textAlign:'center', color:'#444', maxWidth:400, margin:'0 auto'}}>
-      <FormControl fullWidth sx={{ mb: 3 }}>
+    <div
+      style={{
+        padding: '2.2em 2em 2.5em 2em',
+        textAlign: 'center',
+        color: '#7c3aed',
+        maxWidth: 440,
+        margin: '0 auto',
+        background: 'linear-gradient(120deg, #fff7f7 60%, #e0e7ff 100%)',
+        borderRadius: 22,
+        border: '3px dashed #a855f7',
+        boxShadow: '0 6px 32px 0 rgba(124,58,237,0.13)',
+        fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif",
+        fontSize: '1.13rem',
+        letterSpacing: '0.02em',
+        transition: 'all 0.2s cubic-bezier(.4,2,.6,1)'
+      }}
+    >
+      <style>{`
+        .add-strike-form * {
+          font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important;
+        }
+      `}</style>
+      <div className="add-strike-form">
+  <FormControl fullWidth sx={{ mb: 3, fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}>
         <InputLabel id="user-select-label">User</InputLabel>
         <Select
           labelId="user-select-label"
@@ -52,9 +74,9 @@ export default function AddStrike({ users, onEdit, dailyGoals = {}, weeklyGoals 
       </FormControl>
 
       {/* Goal Type label and radios in a single line */}
-      <FormControl component="fieldset" sx={{ mb: 3, width: '100%' }}>
+  <FormControl component="fieldset" sx={{ mb: 3, width: '100%', fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <FormLabel component="legend" sx={{ mb: 0, mr: 2, whiteSpace: 'nowrap' }}>Goal Type</FormLabel>
+          <FormLabel component="legend" sx={{ mb: 0, mr: 2, whiteSpace: 'nowrap', fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}>Goal Type</FormLabel>
           <RadioGroup
             row
             value={goalType}
@@ -67,7 +89,7 @@ export default function AddStrike({ users, onEdit, dailyGoals = {}, weeklyGoals 
         </div>
       </FormControl>
 
-      <FormControl fullWidth sx={{ mb: 3 }}>
+  <FormControl fullWidth sx={{ mb: 3, fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}>
         <InputLabel id="goal-select-label">Goal</InputLabel>
         <Select
           labelId="goal-select-label"
@@ -99,7 +121,7 @@ export default function AddStrike({ users, onEdit, dailyGoals = {}, weeklyGoals 
       )}
 
       {goalType === 'weekly' && (
-        <FormControl fullWidth sx={{ mb: 3 }}>
+  <FormControl fullWidth sx={{ mb: 3, fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}>
           <InputLabel id="week-select-label">Week</InputLabel>
           <Select
             labelId="week-select-label"
@@ -126,7 +148,7 @@ export default function AddStrike({ users, onEdit, dailyGoals = {}, weeklyGoals 
           }
         }}
         fullWidth
-        sx={{ mb: 3 }}
+        sx={{ mb: 3, fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
         inputProps={{ maxLength: 200 }}
         placeholder="Optional comments"
       />
@@ -143,9 +165,11 @@ export default function AddStrike({ users, onEdit, dailyGoals = {}, weeklyGoals 
           week: goalType === 'weekly' ? selectedWeek : undefined,
           comments: comments.trim()
         })}
+        sx={{ fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important", fontWeight: 700, fontSize: '1.1em' }}
       >
         Add Strike <span role="img" aria-label="knife">🔪</span>
       </Button>
+      </div>
     </div>
   );
 }

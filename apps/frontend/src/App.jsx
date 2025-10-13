@@ -187,10 +187,29 @@ function App() {
           onChange={handleTabChange}
           aria-label="summary-tracker-toggle"
           color="primary"
+          sx={{ fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
         >
-          <ToggleButton value="summary" aria-label="Summary">Summary</ToggleButton>
-          <ToggleButton value="tracker" aria-label="Tracker">Tracker</ToggleButton>
-          <ToggleButton value="addStrike" aria-label="AddStrike">Add Strike</ToggleButton>
+          <ToggleButton
+            value="summary"
+            aria-label="Summary"
+            sx={{ fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important", fontWeight: 700, fontSize: '1.08em' }}
+          >
+            Summary
+          </ToggleButton>
+          <ToggleButton
+            value="tracker"
+            aria-label="Tracker"
+            sx={{ fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important", fontWeight: 700, fontSize: '1.08em' }}
+          >
+            Tracker
+          </ToggleButton>
+          <ToggleButton
+            value="addStrike"
+            aria-label="AddStrike"
+            sx={{ fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important", fontWeight: 700, fontSize: '1.08em' }}
+          >
+            Add Strike
+          </ToggleButton>
         </ToggleButtonGroup>
       </Box>
 

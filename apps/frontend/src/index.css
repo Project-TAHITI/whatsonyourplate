@@ -1,41 +1,72 @@
+/* Fun style for all popups/dialogs */
+.MuiDialog-paper {
+    font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important;
+    color: #7c3aed !important;
+    background: linear-gradient(135deg, #fff7f7 60%, #e0e7ff 100%) !important;
+    border: 2.5px dashed #a855f7 !important;
+    border-radius: 18px !important;
+    box-shadow: 0 6px 32px 0 rgba(124,58,237,0.13) !important;
+    letter-spacing: 0.02em;
+    font-size: 1.13rem;
+    transition: all 0.2s cubic-bezier(.4,2,.6,1);
+}
+
+.MuiDialogTitle-root, .MuiDialogContent-root, .MuiDialogActions-root {
+    font-family: inherit !important;
+    color: inherit !important;
+}
+
 body {
     margin: 0;
-    font-family: system-ui, sans-serif;
-    background: #f7f7fa;
-    color: #222;
+    font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif;
+    background: linear-gradient(135deg, #fdf6e3 0%, #e0e7ff 100%) fixed;
+    color: #7c3aed;
+    letter-spacing: 0.01em;
+    font-size: 1.08rem;
+    min-height: 100vh;
+    transition: background 0.3s cubic-bezier(.4,2,.6,1);
 }
+
 
 .app-container {
     max-width: 900px;
     margin: 2rem auto;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
-    padding: 2rem;
+    background: linear-gradient(120deg, #fff7f7 60%, #e0e7ff 100%);
+    border-radius: 22px;
+    box-shadow: 0 6px 32px 0 rgba(124,58,237,0.13);
+    padding: 2.2rem 2rem 2.5rem 2rem;
+    border: 3px dashed #a855f7;
+    font-family: inherit;
+    color: inherit;
 }
 
 /* Stylish centered header */
+
 .app-title {
     text-align: center;
     margin: 0 0 1.25rem 0;
-    font-size: 2rem;
-    letter-spacing: 0.6px;
-    background: linear-gradient(90deg, #0b63a8, #7bd389);
+    font-size: 2.3rem;
+    letter-spacing: 1.2px;
+    background: linear-gradient(90deg, #a855f7, #f59e42, #7bd389, #38bdf8);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-weight: 800;
+    font-weight: 900;
+    font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif;
     position: relative;
+    text-shadow: 0 2px 12px #e0e7ff99;
 }
 
 .app-title::after {
     content: '';
     display: block;
     width: 120px;
-    height: 4px;
-    background: linear-gradient(90deg, rgba(11,99,168,0.9), rgba(123,211,137,0.9));
+    height: 6px;
+    background: linear-gradient(90deg, #a855f7 60%, #f59e42 100%);
     margin: 10px auto 0 auto;
-    border-radius: 4px;
+    border-radius: 6px;
     opacity: 0.95;
+    box-shadow: 0 2px 8px #a855f799;
 }
 
 .user-section {
@@ -71,14 +102,20 @@ body {
     align-items: center;
 }
 
+
 .goal-list li.achieved {
-    background: #e8f5e9;
-    color: #388e3c;
+    background: #e0ffe7;
+    color: #22c55e;
+    font-weight: 700;
+    border: 1.5px dashed #7bd389;
 }
 
+
 .goal-list li.not-achieved {
-    background: #ffebee;
-    color: #d32f2f;
+    background: #ffe4fa;
+    color: #f43f5e;
+    font-weight: 700;
+    border: 1.5px dashed #a855f7;
 }
 
 .goal-date {
@@ -96,24 +133,33 @@ body {
     flex-wrap: wrap;
 }
 
+
 .strike-card {
-    background: #fff7f7;
-    border: 1px solid #ffe6e6;
-    padding: 0.6rem 0.8rem;
-    border-radius: 8px;
+    background: linear-gradient(120deg, #fff7f7 60%, #e0e7ff 100%);
+    border: 2px dashed #f59e42;
+    padding: 0.7rem 1rem;
+    border-radius: 16px;
     min-width: 110px;
     text-align: center;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.03);
+    box-shadow: 0 2px 12px #f59e4299;
+    font-family: inherit;
+    color: inherit;
 }
+
 
 .strike-user {
-    font-weight: 700;
+    font-weight: 900;
     margin-bottom: 0.25rem;
+    color: #a855f7;
+    font-size: 1.1em;
 }
 
+
 .strike-count {
-    color: #d32f2f;
-    font-size: 1.25rem;
+    color: #f43f5e;
+    font-size: 1.35rem;
+    font-weight: 900;
+    text-shadow: 0 2px 8px #f59e4299;
 }
 
 /* Vertical tally marks styling */
