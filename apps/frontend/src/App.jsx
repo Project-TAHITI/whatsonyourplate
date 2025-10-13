@@ -244,8 +244,9 @@ function App() {
             (() => {
               const user = selectedUser;
 
-              // Only show daily goals for dates before today
+              // Only show daily goals for dates up to and including today
               const today = new Date();
+              today.setHours(23, 59, 59, 999);
               const dates = Object.keys(user.daily_goals || {})
                 .filter(date => {
                   // date is in YYYY-MM-DD
