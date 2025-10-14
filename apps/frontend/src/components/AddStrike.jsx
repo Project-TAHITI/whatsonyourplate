@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { getWeekRange } from '../utils/dateUtils';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
@@ -114,7 +115,7 @@ export default function AddStrike({ users, onEdit, dailyGoals = {}, weeklyGoals 
             minDate={new Date('2025-10-02')}
             maxDate={new Date('2025-12-21')}
             slotProps={{
-              textField: { fullWidth: true, sx: { mb: 3 }, disabled: !selectedGoal }
+              textField: { fullWidth: true, sx: { mb: 3 } }
             }}
           />
         </LocalizationProvider>
@@ -128,10 +129,11 @@ export default function AddStrike({ users, onEdit, dailyGoals = {}, weeklyGoals 
             value={selectedWeek}
             label="Week"
             onChange={e => setSelectedWeek(e.target.value)}
-            disabled={!selectedUser}
           >
             {weeks.length > 0 ? weeks.map(week => (
-              <MenuItem key={week} value={week}>{week}</MenuItem>
+              <MenuItem key={week} value={week}>
+                {week} ({getWeekRange(week)})
+              </MenuItem>
             )) : <MenuItem disabled>No weeks</MenuItem>}
           </Select>
         </FormControl>

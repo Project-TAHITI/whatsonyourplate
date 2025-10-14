@@ -45,84 +45,82 @@ function App() {
     }
   }, [selectedUserIndex, data]);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        // Fetch users
-        const { data: users, error: userErr } = await supabase
-          .from('users')
-          .select('*');
-        if (userErr) throw userErr;
+  async function fetchData() {
+    try {
+      // Fetch users
+      const { data: users, error: userErr } = await supabase
+        .from('users')
+        .select('*');
+      if (userErr) throw userErr;
 
-        // Build user map
-        const usersMap = {};
-        users.forEach(u => {
-          usersMap[u.user_id] = u.user_name || u.user_id;
+      // Build user map
+      const usersMap = {};
+      users.forEach(u => {
+        usersMap[u.user_id] = u.user_name || u.user_id;
+      });
+
+      // Fetch all daily tracker rows in batches if needed
+      let daily = [];
+      let from = 0, to = 999;
+      let totalDaily = 0;
+      do {
+        const { data: batch, error: dailyErr, count } = await supabase
+          .from('daily_goal_tracker')
+          .select('*', { count: 'exact' })
+          .range(from, to);
+        if (dailyErr) throw dailyErr;
+        if (batch) daily = daily.concat(batch);
+        if (count !== null) totalDaily = count;
+        from += 1000;
+        to += 1000;
+      } while (from < totalDaily);
+
+      // Fetch all weekly tracker rows in batches if needed
+      let weekly = [];
+      from = 0; to = 999;
+      let totalWeekly = 0;
+      do {
+        const { data: batch, error: weeklyErr, count } = await supabase
+          .from('weekly_goal_tracker')
+          .select('*', { count: 'exact' })
+          .range(from, to);
+        if (weeklyErr) throw weeklyErr;
+        if (batch) weekly = weekly.concat(batch);
+        if (count !== null) totalWeekly = count;
+        from += 1000;
+        to += 1000;
+      } while (from < totalWeekly);
+
+      // Group daily/weekly by user
+      const trackerData = users.map(u => {
+        const user_id = u.user_id;
+        // Group daily by date
+        const dailyGoals = {};
+        daily.filter(d => d.user_id === user_id).forEach(row => {
+          if (!dailyGoals[row.date]) dailyGoals[row.date] = [];
+          dailyGoals[row.date].push({ goal: row.goal, completed: row.completed, comments: row.comments });
         });
-
-        // Fetch daily tracker
-
-
-        // Fetch all daily tracker rows in batches if needed
-        let daily = [];
-        let from = 0, to = 999;
-        let totalDaily = 0;
-        do {
-          const { data: batch, error: dailyErr, count } = await supabase
-            .from('daily_goal_tracker')
-            .select('*', { count: 'exact' })
-            .range(from, to);
-          if (dailyErr) throw dailyErr;
-          if (batch) daily = daily.concat(batch);
-          if (count !== null) totalDaily = count;
-          from += 1000;
-          to += 1000;
-        } while (from < totalDaily);
-
-        // Fetch all weekly tracker rows in batches if needed
-        let weekly = [];
-        from = 0; to = 999;
-        let totalWeekly = 0;
-        do {
-          const { data: batch, error: weeklyErr, count } = await supabase
-            .from('weekly_goal_tracker')
-            .select('*', { count: 'exact' })
-            .range(from, to);
-          if (weeklyErr) throw weeklyErr;
-          if (batch) weekly = weekly.concat(batch);
-          if (count !== null) totalWeekly = count;
-          from += 1000;
-          to += 1000;
-        } while (from < totalWeekly);
-
-        // Group daily/weekly by user
-        const trackerData = users.map(u => {
-          const user_id = u.user_id;
-          // Group daily by date
-          const dailyGoals = {};
-          daily.filter(d => d.user_id === user_id).forEach(row => {
-            if (!dailyGoals[row.date]) dailyGoals[row.date] = [];
-            dailyGoals[row.date].push({ goal: row.goal, completed: row.completed, comments: row.comments });
-          });
-          // Group weekly by week
-          const weeklyGoals = {};
-          weekly.filter(w => w.user_id === user_id).forEach(row => {
-            if (!weeklyGoals[row.week]) weeklyGoals[row.week] = [];
-            weeklyGoals[row.week].push({ goal: row.goal, completed: row.completed, comments: row.comments });
-          });
-          return {
-            user_id,
-            daily_goals: dailyGoals,
-            weekly_goals: weeklyGoals,
-          };
+        // Group weekly by week
+        const weeklyGoals = {};
+        weekly.filter(w => w.user_id === user_id).forEach(row => {
+          if (!weeklyGoals[row.week]) weeklyGoals[row.week] = [];
+          weeklyGoals[row.week].push({ goal: row.goal, completed: row.completed, comments: row.comments });
         });
+        return {
+          user_id,
+          daily_goals: dailyGoals,
+          weekly_goals: weeklyGoals,
+        };
+      });
 
-        setData(trackerData);
-        setUsersMap(usersMap);
-      } catch (err) {
-        setError('Could not load tracker or user data');
-      }
+      setData(trackerData);
+      setUsersMap(usersMap);
+    } catch (err) {
+      setError('Could not load tracker or user data');
     }
+  }
+
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -258,7 +256,7 @@ function App() {
               dates.forEach(d => (user.daily_goals[d] || []).forEach(g => dailyGoalSet.add(g.goal)));
               const dailyGoalNames = Array.from(dailyGoalSet);
 
-              // Only show weekly goals for weeks before current week
+              // Only show weekly goals for weeks upto and including current week
               const getWeekNum = d => {
                 const dt = new Date(d);
                 const firstJan = new Date(dt.getFullYear(), 0, 1);
@@ -382,8 +380,7 @@ function App() {
               alert('Failed to update DB: ' + error.message);
             } else {
               alert('Strike added!');
-              // Optionally, refresh data
-              // fetchData();
+              fetchData();
             }
           }}
         />
