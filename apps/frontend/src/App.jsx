@@ -13,6 +13,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import CircularProgress from '@mui/material/CircularProgress';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import Grid from '@mui/material/Grid';
 import { supabase } from './supabaseClient';
 import StrikeSummary from './components/StrikeSummary';
 import GoalTable from './components/GoalTable';
@@ -210,7 +211,7 @@ function App() {
   };
 
   return (
-    <div className="app-container">
+    <Box className="app-container">
       <h1 className="app-title">Whats On Your Plate</h1>
 
       {/* Top-level navigation as ToggleButtonGroup */}
@@ -538,7 +539,7 @@ function App() {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </div>
+    </Box>
   );
 }
 
