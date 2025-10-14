@@ -66,20 +66,18 @@ export default function AddStrike({
       <div className="add-strike-form">
         <FormControl
           fullWidth
-          sx={{
-            mb: 3,
-            fontFamily:
-              "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important",
-          }}
+          sx={{ mb: 3, fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
         >
           <InputLabel id="user-select-label">User</InputLabel>
           <Select
             labelId="user-select-label"
+            id="user-select"
             value={selectedUser}
             onChange={(e) => {
               setSelectedUser(e.target.value);
               setSelectedGoal('');
             }}
+            inputProps={{ 'aria-label': 'Select user' }}
           >
             {users && users.length > 0 ? (
               users.map((u) => (
@@ -96,28 +94,19 @@ export default function AddStrike({
         {/* Goal Type label and radios in a single line */}
         <FormControl
           component="fieldset"
-          sx={{
-            mb: 3,
-            width: '100%',
-            fontFamily:
-              "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important",
-          }}
+          sx={{ mb: 3, width: '100%', fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <FormLabel
               component="legend"
-              sx={{
-                mb: 0,
-                mr: 2,
-                whiteSpace: 'nowrap',
-                fontFamily:
-                  "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important",
-              }}
+              id="goal-type-label"
+              sx={{ mb: 0, mr: 2, whiteSpace: 'nowrap', fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
             >
               Goal Type
             </FormLabel>
             <RadioGroup
               row
+              aria-labelledby="goal-type-label"
               value={goalType}
               onChange={(e) => {
                 setGoalType(e.target.value);
@@ -133,19 +122,17 @@ export default function AddStrike({
 
         <FormControl
           fullWidth
-          sx={{
-            mb: 3,
-            fontFamily:
-              "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important",
-          }}
+          sx={{ mb: 3, fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
         >
           <InputLabel id="goal-select-label">Goal</InputLabel>
           <Select
             labelId="goal-select-label"
+            id="goal-select"
             value={selectedGoal}
             label="Goal"
             onChange={(e) => setSelectedGoal(e.target.value)}
             disabled={!selectedUser}
+            inputProps={{ 'aria-label': 'Select goal' }}
           >
             {selectedUser && goalList.length > 0 ? (
               Array.from(new Set(goalList)).map((goal) => (
@@ -169,7 +156,7 @@ export default function AddStrike({
               minDate={new Date('2025-10-02')}
               maxDate={new Date('2025-12-21')}
               slotProps={{
-                textField: { fullWidth: true, sx: { mb: 3 } },
+                textField: { fullWidth: true, sx: { mb: 3 }, inputProps: { 'aria-label': 'Select date' } },
               }}
             />
           </LocalizationProvider>
@@ -178,18 +165,16 @@ export default function AddStrike({
         {goalType === 'weekly' && (
           <FormControl
             fullWidth
-            sx={{
-              mb: 3,
-              fontFamily:
-                "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important",
-            }}
+            sx={{ mb: 3, fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
           >
             <InputLabel id="week-select-label">Week</InputLabel>
             <Select
               labelId="week-select-label"
+              id="week-select"
               value={selectedWeek}
               label="Week"
               onChange={(e) => setSelectedWeek(e.target.value)}
+              inputProps={{ 'aria-label': 'Select week' }}
             >
               {weeks.length > 0 ? (
                 weeks.map((week) => (
@@ -215,43 +200,32 @@ export default function AddStrike({
             }
           }}
           fullWidth
-          sx={{
-            mb: 3,
-            fontFamily:
-              "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important",
-          }}
-          inputProps={{ maxLength: 200 }}
+          sx={{ mb: 3, fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
+          inputProps={{ maxLength: 200, 'aria-label': 'Comments' }}
           placeholder="Optional comments"
         />
 
         <Button
           variant="contained"
           color="primary"
+          aria-label="Add Strike"
           disabled={
             !selectedUser || !selectedGoal || (goalType === 'daily' ? !selectedDate : !selectedWeek)
           }
-          onClick={() =>
-            onEdit &&
-            onEdit({
+          onClick={() => {
+            onEdit && onEdit({
               user_id: selectedUser,
               goalType,
               goal: selectedGoal,
               date: goalType === 'daily' ? selectedDate : undefined,
               week: goalType === 'weekly' ? selectedWeek : undefined,
               comments: comments.trim(),
-            })
-          }
-          sx={{
-            fontFamily:
-              "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important",
-            fontWeight: 700,
-            fontSize: '1.1em',
+            });
           }}
+          sx={{ fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important", fontWeight: 700, fontSize: '1.1em' }}
         >
           Add Strike{' '}
-          <span role="img" aria-label="knife">
-            🔪
-          </span>
+          <span role="img" aria-label="knife">🔪</span>
         </Button>
       </div>
     </div>

@@ -10,6 +10,9 @@ import Tabs from '@mui/material/Tabs';
 import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import CircularProgress from '@mui/material/CircularProgress';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import { supabase } from './supabaseClient';
 import StrikeSummary from './components/StrikeSummary';
 import GoalTable from './components/GoalTable';
@@ -31,6 +34,8 @@ function App() {
   const [adminError, setAdminError] = useState('');
   const dailyTableWrapperRef = useRef(null);
   const weeklyTableWrapperRef = useRef(null);
+  // Snackbar state
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
 
   // Auto-scroll to right for daily/weekly tables if columns > 10
   React.useEffect(() => {
@@ -150,18 +155,24 @@ function App() {
     return () => clearTimeout(t);
   }, [data.length, error]);
 
-  if (error) return <div className="app-container">{error}</div>;
+  if (error)
+    return (
+      <div className="app-container" role="alert" aria-live="assertive">
+        <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
+      </div>
+    );
   if (!data.length)
     return (
-      <div className="app-container">
-        <div>Loading...</div>
-        {loadingTimeout && (
-          <div style={{ color: 'red', marginTop: '1em' }}>
-            Timeout: Data not loaded after 10 seconds.
-            <br />
-            Check Supabase URL/key, network, and table data.
-          </div>
-        )}
+      <div className="app-container" aria-busy="true" aria-live="polite">
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 6 }}>
+          <CircularProgress color="secondary" aria-label="Loading data" />
+          <div style={{ marginTop: 16 }}>Loading...</div>
+          {loadingTimeout && (
+            <Alert severity="warning" sx={{ mt: 2 }}>
+              Timeout: Data not loaded after 10 seconds.<br />Check Supabase URL/key, network, and table data.
+            </Alert>
+          )}
+        </Box>
       </div>
     );
   const selectedUser = data[selectedUserIndex];
@@ -208,7 +219,7 @@ function App() {
           value={activeTab}
           exclusive
           onChange={handleTabChange}
-          aria-label="summary-tracker-toggle"
+          aria-label="Main navigation tabs"
           color="primary"
           sx={{
             fontFamily:
@@ -217,7 +228,8 @@ function App() {
         >
           <ToggleButton
             value="summary"
-            aria-label="Summary"
+            aria-label="Summary Tab"
+            tabIndex={0}
             sx={{
               fontFamily:
                 "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important",
@@ -229,7 +241,8 @@ function App() {
           </ToggleButton>
           <ToggleButton
             value="tracker"
-            aria-label="Tracker"
+            aria-label="Tracker Tab"
+            tabIndex={0}
             sx={{
               fontFamily:
                 "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important",
@@ -241,7 +254,8 @@ function App() {
           </ToggleButton>
           <ToggleButton
             value="addStrike"
-            aria-label="AddStrike"
+            aria-label="Add Strike Tab"
+            tabIndex={0}
             sx={{
               fontFamily:
                 "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important",
@@ -430,9 +444,9 @@ function App() {
               .update({ completed: false, comments: info.comments })
               .match(matchObj);
             if (error) {
-              alert('Failed to update DB: ' + error.message);
+              setSnackbar({ open: true, message: 'Failed to update DB: ' + error.message, severity: 'error' });
             } else {
-              alert('Strike added!');
+              setSnackbar({ open: true, message: 'Strike added!', severity: 'success' });
               fetchData();
             }
           }}
@@ -440,10 +454,10 @@ function App() {
       )}
 
       {/* Admin Dialogs */}
-      <Dialog open={adminDialogOpen} onClose={() => setAdminDialogOpen(false)}>
+  <Dialog open={adminDialogOpen} onClose={() => setAdminDialogOpen(false)} aria-modal="true" aria-labelledby="admin-dialog-title">
         {adminStep === 0 && (
           <>
-            <DialogTitle>
+            <DialogTitle id="admin-dialog-title">
               Do you think you have enough <span style={{ color: '#a855f7' }}>Aura</span> to add a
               Strike?
             </DialogTitle>
@@ -459,7 +473,7 @@ function App() {
         )}
         {adminStep === 1 && (
           <>
-            <DialogTitle>Drop your secret sauce to prove your vibe</DialogTitle>
+            <DialogTitle id="admin-dialog-title">Drop your secret sauce to prove your vibe</DialogTitle>
             <DialogContent>
               <TextField
                 autoFocus
@@ -494,7 +508,7 @@ function App() {
         )}
         {adminStep === 2 && (
           <>
-            <DialogTitle>
+            <DialogTitle id="admin-dialog-title">
               Touch grass, come back with some real main character energy.{' '}
               <span role="img" aria-label="skull">
                 💀
@@ -508,6 +522,22 @@ function App() {
           </>
         )}
       </Dialog>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        role="status"
+        aria-live="polite"
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
