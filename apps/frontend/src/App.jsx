@@ -1,21 +1,22 @@
+
 import React, { useEffect, useState, useRef } from 'react';
-import './index.css';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
 import { supabase } from './supabaseClient';
 import StrikeSummary from './components/StrikeSummary';
 import GoalTable from './components/GoalTable';
-import { tallyMarks, getStrikeCount } from './utils/tallyUtils.jsx';
 import AddStrike from './components/AddStrike.jsx';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
+import { tallyMarks, getStrikeCount } from './utils/strikeUtils.jsx';
+import './index.css';
 
 function App() {
   const [data, setData] = useState([]);
@@ -124,8 +125,6 @@ function App() {
     fetchData();
   }, []);
 
-  // (selectedUserIndex is clamped when data is loaded)
-
   useEffect(() => {
     if (data.length || error) return;
     const t = setTimeout(() => setLoadingTimeout(true), 10000);
@@ -216,7 +215,7 @@ function App() {
         <StrikeSummary
           data={data}
           usersMap={usersMap}
-          getStrikeCount={getStrikeCount}
+          getStrikeCount={(goals, type) => getStrikeCount(goals, type)}
           tallyMarks={tallyMarks}
         />
       )}

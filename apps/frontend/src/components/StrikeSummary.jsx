@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 // StrikeSummary - renders the summary of strikes for all users.
