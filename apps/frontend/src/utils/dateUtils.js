@@ -19,6 +19,7 @@ export function getWeekRange(weekStr) {
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekStart.getDate() + 6);
   // Format: DDMMM-DDMMM
-  const fmt = d => `${d.getDate().toString().padStart(2, '0')}${d.toLocaleString('en-US', { month: 'short' })}`;
+  const fmt = (d) =>
+    `${d.getDate().toString().padStart(2, '0')}${d.toLocaleString('en-US', { month: 'short' })}`;
   return `${fmt(weekStart)}-${fmt(weekEnd)}`;
 }

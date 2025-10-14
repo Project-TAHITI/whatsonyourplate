@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -49,23 +48,26 @@ function App() {
   async function fetchData() {
     try {
       // Fetch users
-      const { data: users, error: userErr } = await supabase
-        .from('users')
-        .select('*');
+      const { data: users, error: userErr } = await supabase.from('users').select('*');
       if (userErr) throw userErr;
 
       // Build user map
       const usersMap = {};
-      users.forEach(u => {
+      users.forEach((u) => {
         usersMap[u.user_id] = u.user_name || u.user_id;
       });
 
       // Fetch all daily tracker rows in batches if needed
       let daily = [];
-      let from = 0, to = 999;
+      let from = 0,
+        to = 999;
       let totalDaily = 0;
       do {
-        const { data: batch, error: dailyErr, count } = await supabase
+        const {
+          data: batch,
+          error: dailyErr,
+          count,
+        } = await supabase
           .from('daily_goal_tracker')
           .select('*', { count: 'exact' })
           .range(from, to);
@@ -78,10 +80,15 @@ function App() {
 
       // Fetch all weekly tracker rows in batches if needed
       let weekly = [];
-      from = 0; to = 999;
+      from = 0;
+      to = 999;
       let totalWeekly = 0;
       do {
-        const { data: batch, error: weeklyErr, count } = await supabase
+        const {
+          data: batch,
+          error: weeklyErr,
+          count,
+        } = await supabase
           .from('weekly_goal_tracker')
           .select('*', { count: 'exact' })
           .range(from, to);
@@ -93,20 +100,32 @@ function App() {
       } while (from < totalWeekly);
 
       // Group daily/weekly by user
-      const trackerData = users.map(u => {
+      const trackerData = users.map((u) => {
         const user_id = u.user_id;
         // Group daily by date
         const dailyGoals = {};
-        daily.filter(d => d.user_id === user_id).forEach(row => {
-          if (!dailyGoals[row.date]) dailyGoals[row.date] = [];
-          dailyGoals[row.date].push({ goal: row.goal, completed: row.completed, comments: row.comments });
-        });
+        daily
+          .filter((d) => d.user_id === user_id)
+          .forEach((row) => {
+            if (!dailyGoals[row.date]) dailyGoals[row.date] = [];
+            dailyGoals[row.date].push({
+              goal: row.goal,
+              completed: row.completed,
+              comments: row.comments,
+            });
+          });
         // Group weekly by week
         const weeklyGoals = {};
-        weekly.filter(w => w.user_id === user_id).forEach(row => {
-          if (!weeklyGoals[row.week]) weeklyGoals[row.week] = [];
-          weeklyGoals[row.week].push({ goal: row.goal, completed: row.completed, comments: row.comments });
-        });
+        weekly
+          .filter((w) => w.user_id === user_id)
+          .forEach((row) => {
+            if (!weeklyGoals[row.week]) weeklyGoals[row.week] = [];
+            weeklyGoals[row.week].push({
+              goal: row.goal,
+              completed: row.completed,
+              comments: row.comments,
+            });
+          });
         return {
           user_id,
           daily_goals: dailyGoals,
@@ -132,12 +151,19 @@ function App() {
   }, [data.length, error]);
 
   if (error) return <div className="app-container">{error}</div>;
-  if (!data.length) return (
-    <div className="app-container">
-      <div>Loading...</div>
-      {loadingTimeout && <div style={{color:'red',marginTop:'1em'}}>Timeout: Data not loaded after 10 seconds.<br/>Check Supabase URL/key, network, and table data.</div>}
-    </div>
-  );
+  if (!data.length)
+    return (
+      <div className="app-container">
+        <div>Loading...</div>
+        {loadingTimeout && (
+          <div style={{ color: 'red', marginTop: '1em' }}>
+            Timeout: Data not loaded after 10 seconds.
+            <br />
+            Check Supabase URL/key, network, and table data.
+          </div>
+        )}
+      </div>
+    );
   const selectedUser = data[selectedUserIndex];
 
   // Tab change handler: open AddStrike with admin dialog
@@ -184,26 +210,44 @@ function App() {
           onChange={handleTabChange}
           aria-label="summary-tracker-toggle"
           color="primary"
-          sx={{ fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
+          sx={{
+            fontFamily:
+              "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important",
+          }}
         >
           <ToggleButton
             value="summary"
             aria-label="Summary"
-            sx={{ fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important", fontWeight: 700, fontSize: '1.08em' }}
+            sx={{
+              fontFamily:
+                "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important",
+              fontWeight: 700,
+              fontSize: '1.08em',
+            }}
           >
             Summary
           </ToggleButton>
           <ToggleButton
             value="tracker"
             aria-label="Tracker"
-            sx={{ fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important", fontWeight: 700, fontSize: '1.08em' }}
+            sx={{
+              fontFamily:
+                "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important",
+              fontWeight: 700,
+              fontSize: '1.08em',
+            }}
           >
             Tracker
           </ToggleButton>
           <ToggleButton
             value="addStrike"
             aria-label="AddStrike"
-            sx={{ fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important", fontWeight: 700, fontSize: '1.08em' }}
+            sx={{
+              fontFamily:
+                "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important",
+              fontWeight: 700,
+              fontSize: '1.08em',
+            }}
           >
             Add Strike
           </ToggleButton>
@@ -232,7 +276,11 @@ function App() {
               scrollButtons="auto"
             >
               {data.map((user, idx) => (
-                <Tab key={user.user_id} label={usersMap[user.user_id] || user.user_id} value={idx} />
+                <Tab
+                  key={user.user_id}
+                  label={usersMap[user.user_id] || user.user_id}
+                  value={idx}
+                />
               ))}
             </Tabs>
           </Box>
@@ -245,18 +293,20 @@ function App() {
               const today = new Date();
               today.setHours(23, 59, 59, 999);
               const dates = Object.keys(user.daily_goals || {})
-                .filter(date => {
+                .filter((date) => {
                   // date is in YYYY-MM-DD
                   const d = new Date(date + 'T23:59:59');
                   return d <= today;
                 })
                 .sort();
               const dailyGoalSet = new Set();
-              dates.forEach(d => (user.daily_goals[d] || []).forEach(g => dailyGoalSet.add(g.goal)));
+              dates.forEach((d) =>
+                (user.daily_goals[d] || []).forEach((g) => dailyGoalSet.add(g.goal))
+              );
               const dailyGoalNames = Array.from(dailyGoalSet);
 
               // Only show weekly goals for weeks upto and including current week
-              const getWeekNum = d => {
+              const getWeekNum = (d) => {
                 const dt = new Date(d);
                 const firstJan = new Date(dt.getFullYear(), 0, 1);
                 const days = Math.floor((dt - firstJan) / 86400000);
@@ -265,7 +315,7 @@ function App() {
               const currentYear = today.getFullYear();
               const currentWeek = getWeekNum(today);
               const weeks = Object.keys(user.weekly_goals || {})
-                .filter(week => {
+                .filter((week) => {
                   // week is in YYYY-W##
                   const [yearStr, wStr] = week.split('-W');
                   const year = parseInt(yearStr, 10);
@@ -274,7 +324,9 @@ function App() {
                 })
                 .sort();
               const weeklyGoalSet = new Set();
-              weeks.forEach(w => (user.weekly_goals[w] || []).forEach(g => weeklyGoalSet.add(g.goal)));
+              weeks.forEach((w) =>
+                (user.weekly_goals[w] || []).forEach((g) => weeklyGoalSet.add(g.goal))
+              );
               const weeklyGoalNames = Array.from(weeklyGoalSet);
 
               return (
@@ -331,44 +383,46 @@ function App() {
       {/* AddStrike view */}
       {activeTab === 'addStrike' && (
         <AddStrike
-          users={data.map(u => ({ user_id: u.user_id, user_name: usersMap[u.user_id] }))}
+          users={data.map((u) => ({ user_id: u.user_id, user_name: usersMap[u.user_id] }))}
           dailyGoals={(() => {
             const obj = {};
-            data.forEach(u => {
+            data.forEach((u) => {
               // Collect all daily goals for this user
-              const goals = Object.values(u.daily_goals || {}).flat().map(g => g.goal);
+              const goals = Object.values(u.daily_goals || {})
+                .flat()
+                .map((g) => g.goal);
               obj[u.user_id] = Array.from(new Set(goals));
             });
             return obj;
           })()}
           weeklyGoals={(() => {
             const obj = {};
-            data.forEach(u => {
+            data.forEach((u) => {
               // Collect all weekly goals for this user
-              const goals = Object.values(u.weekly_goals || {}).flat().map(g => g.goal);
+              const goals = Object.values(u.weekly_goals || {})
+                .flat()
+                .map((g) => g.goal);
               obj[u.user_id] = Array.from(new Set(goals));
             });
             return obj;
           })()}
-          weeks={Array.from(new Set(
-            data.flatMap(u => Object.keys(u.weekly_goals || {}))
-          )).sort()}
-          onEdit={async info => {
+          weeks={Array.from(new Set(data.flatMap((u) => Object.keys(u.weekly_goals || {})))).sort()}
+          onEdit={async (info) => {
             // info: { user_id, goalType, goal, date, week, comments }
             let table, matchObj;
             if (info.goalType === 'daily') {
               table = 'daily_goal_tracker';
               matchObj = {
                 user_id: info.user_id,
-                date: info.date instanceof Date ? info.date.toISOString().slice(0,10) : info.date,
-                goal: info.goal
+                date: info.date instanceof Date ? info.date.toISOString().slice(0, 10) : info.date,
+                goal: info.goal,
               };
             } else {
               table = 'weekly_goal_tracker';
               matchObj = {
                 user_id: info.user_id,
                 week: info.week,
-                goal: info.goal
+                goal: info.goal,
               };
             }
             const { error } = await supabase
@@ -389,10 +443,17 @@ function App() {
       <Dialog open={adminDialogOpen} onClose={() => setAdminDialogOpen(false)}>
         {adminStep === 0 && (
           <>
-            <DialogTitle>Do you think you have enough <span style={{color:'#a855f7'}}>Aura</span> to add a Strike?</DialogTitle>
+            <DialogTitle>
+              Do you think you have enough <span style={{ color: '#a855f7' }}>Aura</span> to add a
+              Strike?
+            </DialogTitle>
             <DialogActions>
-              <Button onClick={handleAdminYes} color="primary">Bet 💫</Button>
-              <Button onClick={handleAdminNo} color="secondary">Nah 😅</Button>
+              <Button onClick={handleAdminYes} color="primary">
+                Bet 💫
+              </Button>
+              <Button onClick={handleAdminNo} color="secondary">
+                Nah 😅
+              </Button>
             </DialogActions>
           </>
         )}
@@ -407,8 +468,11 @@ function App() {
                 type="password"
                 fullWidth
                 value={adminPassword}
-                onChange={e => { setAdminPassword(e.target.value); setAdminError(''); }}
-                onKeyDown={e => {
+                onChange={(e) => {
+                  setAdminPassword(e.target.value);
+                  setAdminError('');
+                }}
+                onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
                     handleAdminPassword();
@@ -419,18 +483,27 @@ function App() {
               />
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleAdminPassword} color="primary">Flex 💪</Button>
-              <Button onClick={() => setAdminDialogOpen(false)} color="secondary">Back Out 🚪</Button>
+              <Button onClick={handleAdminPassword} color="primary">
+                Flex 💪
+              </Button>
+              <Button onClick={() => setAdminDialogOpen(false)} color="secondary">
+                Back Out 🚪
+              </Button>
             </DialogActions>
           </>
         )}
         {adminStep === 2 && (
           <>
             <DialogTitle>
-              Touch grass, come back with some real main character energy. <span role="img" aria-label="skull">💀</span>
+              Touch grass, come back with some real main character energy.{' '}
+              <span role="img" aria-label="skull">
+                💀
+              </span>
             </DialogTitle>
             <DialogActions>
-              <Button onClick={handleRoastClose} color="primary">Skibidi Out!! 😭</Button>
+              <Button onClick={handleRoastClose} color="primary">
+                Skibidi Out!! 😭
+              </Button>
             </DialogActions>
           </>
         )}

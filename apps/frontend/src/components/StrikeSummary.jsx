@@ -1,22 +1,21 @@
-
 import React from 'react';
 
 // StrikeSummary - renders the summary of strikes for all users.
 export default function StrikeSummary({ data, usersMap, getStrikeCount, tallyMarks }) {
   // Find the user(s) with the highest strikes
-  const userStrikes = data.map(user => {
+  const userStrikes = data.map((user) => {
     const dailyStrikes = getStrikeCount(user.daily_goals);
     const weeklyStrikes = getStrikeCount(user.weekly_goals);
     return { user_id: user.user_id, total: dailyStrikes + weeklyStrikes };
   });
-  const maxStrikes = Math.max(...userStrikes.map(u => u.total), 0);
-  const topUsers = userStrikes.filter(u => u.total === maxStrikes).map(u => u.user_id);
+  const maxStrikes = Math.max(...userStrikes.map((u) => u.total), 0);
+  const topUsers = userStrikes.filter((u) => u.total === maxStrikes).map((u) => u.user_id);
 
   return (
     <section className="strike-summary">
       <h2>Strikes Summary</h2>
       <div className="strike-grid">
-        {data.map(user => {
+        {data.map((user) => {
           const dailyStrikes = getStrikeCount(user.daily_goals);
           const weeklyStrikes = getStrikeCount(user.weekly_goals);
           const totalStrikes = dailyStrikes + weeklyStrikes;
