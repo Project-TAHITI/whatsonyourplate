@@ -1,4 +1,5 @@
 import React from 'react';
+import Box from '@mui/material/Box';
 
 // StrikeSummary - renders the summary of strikes for all users.
 export default function StrikeSummary({ data, usersMap, getStrikeCount, tallyMarks }) {
@@ -13,7 +14,6 @@ export default function StrikeSummary({ data, usersMap, getStrikeCount, tallyMar
 
   return (
     <section className="strike-summary">
-      <h2>Strikes Summary</h2>
       <div className="strike-grid">
         {data.map((user) => {
           const dailyStrikes = getStrikeCount(user.daily_goals);
@@ -21,10 +21,15 @@ export default function StrikeSummary({ data, usersMap, getStrikeCount, tallyMar
           const totalStrikes = dailyStrikes + weeklyStrikes;
           const isTop = topUsers.includes(user.user_id) && maxStrikes > 0;
           return (
-            <div
+            <Box
               className={`strike-card${isTop ? ' leader-strike-card' : ''}`}
               key={user.user_id}
               title={`${usersMap[user.user_id] || user.user_id}: ${totalStrikes} strikes`}
+              sx={{
+                bgcolor: 'background.paper',
+                color: 'text.primary',
+                transition: 'background 0.3s, color 0.3s',
+              }}
             >
               <div className="strike-user">
                 {usersMap[user.user_id] || user.user_id}
@@ -41,7 +46,7 @@ export default function StrikeSummary({ data, usersMap, getStrikeCount, tallyMar
               </div>
               <div className="strike-num">{totalStrikes}</div>
               <div className="strike-count">{tallyMarks(totalStrikes)}</div>
-            </div>
+            </Box>
           );
         })}
       </div>

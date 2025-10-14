@@ -23,3 +23,10 @@ export function getWeekRange(weekStr) {
     `${d.getDate().toString().padStart(2, '0')}${d.toLocaleString('en-US', { month: 'short' })}`;
   return `${fmt(weekStart)}-${fmt(weekEnd)}`;
 }
+
+/**
+ * Returns the current date in ISO format (YYYY-MM-DD).
+ */
+export function getTodayISO() {
+  return new Date().toISOString().slice(0, 10);
+}

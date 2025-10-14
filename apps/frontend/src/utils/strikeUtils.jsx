@@ -23,7 +23,7 @@ export function TallySVG({ count }) {
 }
 
 export function tallyMarks(count) {
-  if (count === 0) return '✔';
+  if (count === 0) return '\u2714';
   let blocks = [];
   let fives = Math.floor(count / 5);
   let rest = count % 5;

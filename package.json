@@ -3,7 +3,7 @@
   "name": "whatsonyourplate",
   "version": "0.0.0",
   "private": true,
-  "description": "Nx workspace for the WhatsonYourPlate project (empty workspace - no apps yet)",
+  "description": "Nx workspace for the WhatsonYourPlate project",
   "scripts": {
     "nx": "nx",
     "start": "echo No apps yet. Use 'npm run nx -- generate' to add one.",

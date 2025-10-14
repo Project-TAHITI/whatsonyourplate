@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -13,8 +14,8 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { getWeekRange } from '../utils/dateUtils';
+import { useTheme } from '@mui/material/styles';
 
-// dailyGoals and weeklyGoals should be objects: { [user_id]: [goals] }
 export default function AddStrike({
   users,
   onEdit,
@@ -28,6 +29,7 @@ export default function AddStrike({
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedWeek, setSelectedWeek] = useState('');
   const [comments, setComments] = useState('');
+  const theme = useTheme();
 
   // Get unique goals for the selected user and type
   let goalList = [];
@@ -40,34 +42,25 @@ export default function AddStrike({
   }
 
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         padding: '2.2em 2em 2.5em 2em',
         textAlign: 'center',
-        color: '#7c3aed',
+        color: theme.palette.text.primary,
         maxWidth: 440,
         margin: '0 auto',
-        background: 'linear-gradient(120deg, #fff7f7 60%, #e0e7ff 100%)',
-        borderRadius: 22,
+        bgcolor: 'background.paper',
+        borderRadius: 4, // further reduced
         border: '3px dashed #a855f7',
         boxShadow: '0 6px 32px 0 rgba(124,58,237,0.13)',
-        fontFamily:
-          "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif",
         fontSize: '1.13rem',
         letterSpacing: '0.02em',
         transition: 'all 0.2s cubic-bezier(.4,2,.6,1)',
       }}
+      className="comic-font"
     >
-      <style>{`
-        .add-strike-form * {
-          font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important;
-        }
-      `}</style>
-      <div className="add-strike-form">
-        <FormControl
-          fullWidth
-          sx={{ mb: 3, fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
-        >
+      <div>
+        <FormControl fullWidth sx={{ mb: 3 }} className="comic-font">
           <InputLabel id="user-select-label">User</InputLabel>
           <Select
             labelId="user-select-label"
@@ -92,15 +85,13 @@ export default function AddStrike({
         </FormControl>
 
         {/* Goal Type label and radios in a single line */}
-        <FormControl
-          component="fieldset"
-          sx={{ mb: 3, width: '100%', fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
-        >
+        <FormControl component="fieldset" sx={{ mb: 3, width: '100%' }} className="comic-font">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <FormLabel
               component="legend"
               id="goal-type-label"
-              sx={{ mb: 0, mr: 2, whiteSpace: 'nowrap', fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
+              sx={{ mb: 0, mr: 2, whiteSpace: 'nowrap' }}
+              className="comic-font"
             >
               Goal Type
             </FormLabel>
@@ -120,10 +111,7 @@ export default function AddStrike({
           </div>
         </FormControl>
 
-        <FormControl
-          fullWidth
-          sx={{ mb: 3, fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
-        >
+        <FormControl fullWidth sx={{ mb: 3 }} className="comic-font">
           <InputLabel id="goal-select-label">Goal</InputLabel>
           <Select
             labelId="goal-select-label"
@@ -156,17 +144,18 @@ export default function AddStrike({
               minDate={new Date('2025-10-02')}
               maxDate={new Date('2025-12-21')}
               slotProps={{
-                textField: { fullWidth: true, sx: { mb: 3 }, inputProps: { 'aria-label': 'Select date' } },
+                textField: {
+                  fullWidth: true,
+                  sx: { mb: 3 },
+                  inputProps: { 'aria-label': 'Select date' },
+                },
               }}
             />
           </LocalizationProvider>
         )}
 
         {goalType === 'weekly' && (
-          <FormControl
-            fullWidth
-            sx={{ mb: 3, fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
-          >
+          <FormControl fullWidth sx={{ mb: 3 }} className="comic-font">
             <InputLabel id="week-select-label">Week</InputLabel>
             <Select
               labelId="week-select-label"
@@ -200,7 +189,8 @@ export default function AddStrike({
             }
           }}
           fullWidth
-          sx={{ mb: 3, fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important" }}
+          sx={{ mb: 3 }}
+          className="comic-font"
           inputProps={{ maxLength: 200, 'aria-label': 'Comments' }}
           placeholder="Optional comments"
         />
@@ -213,21 +203,24 @@ export default function AddStrike({
             !selectedUser || !selectedGoal || (goalType === 'daily' ? !selectedDate : !selectedWeek)
           }
           onClick={() => {
-            onEdit && onEdit({
-              user_id: selectedUser,
-              goalType,
-              goal: selectedGoal,
-              date: goalType === 'daily' ? selectedDate : undefined,
-              week: goalType === 'weekly' ? selectedWeek : undefined,
-              comments: comments.trim(),
-            });
+            onEdit &&
+              onEdit({
+                user_id: selectedUser,
+                goalType,
+                goal: selectedGoal,
+                date: goalType === 'daily' ? selectedDate : undefined,
+                week: goalType === 'weekly' ? selectedWeek : undefined,
+                comments: comments.trim(),
+              });
           }}
-          sx={{ fontFamily: "'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important", fontWeight: 700, fontSize: '1.1em' }}
+          className="comic-font-bold"
         >
           Add Strike{' '}
-          <span role="img" aria-label="knife">🔪</span>
+          <span role="img" aria-label="knife">
+            🔪
+          </span>
         </Button>
       </div>
-    </div>
+    </Box>
   );
 }
