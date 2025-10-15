@@ -8,6 +8,7 @@ Folder: `serverless/supabase-edge/strike-report/`
 File: `index.ts`
 
 Deployment:
+
 1. Install supabase CLI locally.
 2. Run `supabase functions deploy strike-report`.
 3. Note the deployed function URL.
@@ -19,6 +20,7 @@ Deployment:
    - REPORT_TIMEZONE (optional)
 
 Scheduling with `pg_cron` (enable extension in your database):
+
 ```sql
 -- Enable extension (once)
 create extension if not exists pg_cron;
@@ -32,13 +34,16 @@ select cron.schedule('strike-report-daily', '0 21 * * *', $$
   );
 $$);
 ```
+
 If `http_post` isn't available, alternatively schedule from external cron (GitHub Actions, Cloudflare Workers) hitting the function URL.
 
 Pros:
+
 - Zero warm server cost.
 - Native Supabase auth/secrets.
 
 Cons:
+
 - Requires pg_cron + http extension (or external scheduler).
 
 ## 2. AWS Lambda + EventBridge
@@ -47,17 +52,21 @@ Folder: `serverless/aws-lambda/strikeReport.js`
 Handler: `handler`
 
 Packaging:
+
 - Create `package.json` with `@supabase/supabase-js` and `node-fetch`.
 - Zip contents and upload or use SAM/CDK to deploy.
 
 EventBridge Rule (daily 14:00 UTC):
+
 ```json
 {
   "ScheduleExpression": "cron(0 14 * * ? *)",
   "Target": "arn:aws:lambda:REGION:ACCOUNT:function:StrikeReport"
 }
 ```
+
 Set env vars in Lambda configuration:
+
 - SUPABASE_URL
 - SUPABASE_SERVICE_ROLE_KEY (store encrypted with KMS)
 - TELEGRAM_BOT_TOKEN (Encrypted)
@@ -65,10 +74,12 @@ Set env vars in Lambda configuration:
 - REPORT_TIMEZONE
 
 Pros:
+
 - Scales automatically, retry + DLQ support.
 - Integrated logging (CloudWatch).
 
 Cons:
+
 - More infra management.
 
 ## 3. Cloudflare Workers Cron
@@ -89,9 +100,11 @@ Pros: Simple if site already hosted there.
 Cons: Beta features (Vercel); execution time limits.
 
 ## Choosing
+
 If all data already in Supabase and you prefer unified hosting, Supabase Edge + pg_cron is simplest. For broader infra / advanced observability or multi-region, AWS Lambda + EventBridge gives flexibility.
 
 ## Migration Path From Express
+
 1. Extract logic (already done in examples) into shared utility (optional).
 2. Pick target platform; set secrets.
 3. Deploy function; test manual invoke.
@@ -100,33 +113,41 @@ If all data already in Supabase and you prefer unified hosting, Supabase Edge + 
 6. Add logging table `strike_report_runs` for auditing.
 
 ## Enhancements Across Serverless
+
 - Add retry around Telegram with exponential backoff.
 - Persist result & message_id to Supabase.
 - Add idempotency guard (e.g. check if run for date already stored).
 - Structured JSON log with run duration.
 
 ## Security Notes
+
 - Never expose service role key in client code; keep in serverless env.
 - Restrict Edge function if needed (JWT verification or custom header token).
 - Rotate Telegram bot token periodically.
 
 ## Testing Locally (Supabase Edge)
+
 Use CLI invoke:
+
 ```
 supabase functions serve strike-report --env-file ./edge.env
 curl -i http://localhost:54321/functions/v1/strike-report
 ```
 
 ## Testing Locally (Lambda)
+
 Using AWS SAM:
+
 ```
 SAM build
 SAM local invoke StrikeReportFunction --env-vars env.json
 ```
 
 ## Timezone Handling
+
 `REPORT_TIMEZONE` uses IANA zone name; ensure platform supports `toLocaleString` with `timeZone`.
 Fallback is UTC if not provided.
 
 ---
+
 Feel free to request additional platform examples (GCP Cloud Scheduler + Cloud Function, Azure Function Timer Trigger).

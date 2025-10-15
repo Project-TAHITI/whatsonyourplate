@@ -15,7 +15,7 @@ function isoWeekKey(d = new Date()) {
   const dayNum = date.getUTCDay() || 7;
   date.setUTCDate(date.getUTCDate() + 4 - dayNum);
   const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-  const week = Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+  const week = Math.ceil(((date.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
   return `${date.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
 }
 
@@ -106,9 +106,17 @@ serve(async (req) => {
    */
   function pickLast(dArr = [], wArr = []) {
     // Convert daily items to {date, goal, comments}
-    const dailyWithDate = dArr.map(d => ({ sortDate: new Date(d.date), goal: d.goal, comments: d.comments }));
+    const dailyWithDate = dArr.map((d) => ({
+      sortDate: new Date(d.date),
+      goal: d.goal,
+      comments: d.comments,
+    }));
     // Convert weekly items to {date (last day of week), goal, comments}
-    const weeklyWithDate = wArr.map(w => ({ sortDate: weekToLastDay(w.week), goal: w.goal, comments: w.comments }));
+    const weeklyWithDate = wArr.map((w) => ({
+      sortDate: weekToLastDay(w.week),
+      goal: w.goal,
+      comments: w.comments,
+    }));
     const combined = [...dailyWithDate, ...weeklyWithDate];
     if (!combined.length) return null;
     // Sort by date descending (most recent first)
@@ -122,15 +130,23 @@ serve(async (req) => {
 
   /** @type {Record<string,string>} */
   const nameMap = {};
-  users?.forEach((u) => { nameMap[u.user_id] = u.user_name || u.user_id; });
+  users?.forEach((u) => {
+    nameMap[u.user_id] = u.user_name || u.user_id;
+  });
 
-  const lines = users?.map((u) => {
-    const d = dailyMap[u.user_id] || [];
-    const w = weeklyMap[u.user_id] || [];
-    const total = d.length + w.length;
-    const lastInfo = pickLast(d, w);
-    return { user_id: u.user_id, name: nameMap[u.user_id], total, bracket: lastInfo ? ` [${lastInfo}]` : '' };
-  }) || [];
+  const lines =
+    users?.map((u) => {
+      const d = dailyMap[u.user_id] || [];
+      const w = weeklyMap[u.user_id] || [];
+      const total = d.length + w.length;
+      const lastInfo = pickLast(d, w);
+      return {
+        user_id: u.user_id,
+        name: nameMap[u.user_id],
+        total,
+        bracket: lastInfo ? ` [${lastInfo}]` : '',
+      };
+    }) || [];
   // Sort alphabetically by user name
   lines.sort((a, b) => a.name.localeCompare(b.name));
   const body = lines.map((l) => `${l.name}: ${l.total}${l.bracket}`).join('\n');
@@ -140,18 +156,21 @@ serve(async (req) => {
   const tgResp = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message })
+    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message }),
   });
   let tgJson = null;
   if (tgResp.ok) {
     tgJson = await tgResp.json();
   }
 
-  return new Response(JSON.stringify({
-    ok: true,
-    message,
-    telegramMessageId: tgJson?.message_id
-  }), {
-    headers: { 'Content-Type': 'application/json' }
-  });
+  return new Response(
+    JSON.stringify({
+      ok: true,
+      message,
+      telegramMessageId: tgJson?.message_id,
+    }),
+    {
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
 });

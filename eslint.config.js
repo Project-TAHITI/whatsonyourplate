@@ -7,12 +7,7 @@ import prettierRecommended from 'eslint-config-prettier';
 /** @type {import('eslint').FlatConfig[]} */
 export default [
   {
-    ignores: [
-      'dist/**',
-      'apps/**/dist/**',
-      'libs/**/dist/**',
-      '.nx/**',
-    ],
+    ignores: ['dist/**', 'apps/**/dist/**', 'libs/**/dist/**', '.nx/**'],
     languageOptions: {
       ...js.languageOptions,
       ecmaVersion: 'latest',
