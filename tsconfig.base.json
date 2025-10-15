@@ -12,6 +12,8 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@libs/*": ["libs/*"]
+    }
   }
 }
