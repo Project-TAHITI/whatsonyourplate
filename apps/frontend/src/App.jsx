@@ -42,7 +42,7 @@ function App() {
     message: '',
     severity: 'info',
   });
-  const [mode, setMode] = useState(() => localStorage.getItem('themeMode') || 'light');
+  const [mode, setMode] = useState(() => localStorage.getItem('themeMode') || 'dark');
 
   const colorMode = React.useMemo(
     () => ({
@@ -428,7 +428,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ position: 'fixed', top: 10, right: 10, zIndex: 1000 }}>
+      <Box sx={{ position: 'absolute', top: 10, right: 10, zIndex: 1000 }}>
         <button
           onClick={colorMode.toggleColorMode}
           style={{
