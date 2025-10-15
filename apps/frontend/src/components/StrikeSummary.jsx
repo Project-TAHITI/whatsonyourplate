@@ -1,7 +1,7 @@
 import React from 'react';
 import Box from '@mui/material/Box';
+import { EMOJI } from '../constants/emojis';
 
-// StrikeSummary - renders the summary of strikes for all users.
 export default function StrikeSummary({ data, usersMap, getStrikeCount, tallyMarks }) {
   // Find the user(s) with the highest strikes
   const userStrikes = data.map((user) => {
@@ -40,7 +40,7 @@ export default function StrikeSummary({ data, usersMap, getStrikeCount, tallyMar
                     className="crown-emoji"
                     style={{ marginLeft: 8 }}
                   >
-                    👑
+                    {EMOJI.CROWN}
                   </span>
                 )}
               </div>

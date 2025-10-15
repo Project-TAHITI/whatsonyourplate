@@ -20,6 +20,8 @@ import StrikeSummary from './components/StrikeSummary';
 import GoalTable from './components/GoalTable';
 import AddStrike from './components/AddStrike.jsx';
 import { tallyMarks, getStrikeCount } from './utils/strikeUtils.jsx';
+import { EMOJI } from './constants/emojis.js';
+import { sendStrikeNotification } from './utils/telegramUtils.js';
 import './index.css';
 
 function App() {
@@ -681,6 +683,26 @@ function App() {
               } else {
                 setSnackbar({ open: true, message: 'Strike added!', severity: 'success' });
                 fetchData();
+
+                // Send Telegram notification
+                const userName = usersMap[info.user_id] || info.user_id;
+                const dateStr =
+                  info.goalType === 'daily'
+                    ? info.date instanceof Date
+                      ? info.date.toISOString().slice(0, 10)
+                      : info.date
+                    : info.week;
+
+                sendStrikeNotification({
+                  userName,
+                  goal: info.goal,
+                  goalType: info.goalType,
+                  date: dateStr,
+                  comments: info.comments,
+                }).catch((err) => {
+                  console.error('Failed to send Telegram notification:', err);
+                  // Don't show error to user - notification is optional
+                });
               }
             }}
           />
@@ -701,10 +723,10 @@ function App() {
               </DialogTitle>
               <DialogActions>
                 <Button onClick={handleAdminYes} color="primary">
-                  Bet 💫
+                  Bet {EMOJI.DIZZY}
                 </Button>
                 <Button onClick={handleAdminNo} color="secondary">
-                  Nah 😅
+                  Nah {EMOJI.SWEAT_SMILE}
                 </Button>
               </DialogActions>
             </>
@@ -738,10 +760,10 @@ function App() {
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleAdminPassword} color="primary">
-                  Flex 💪
+                  Flex {EMOJI.FLEX}
                 </Button>
                 <Button onClick={() => setAdminDialogOpen(false)} color="secondary">
-                  Back Out 🚪
+                  Back Out {EMOJI.DOOR}
                 </Button>
               </DialogActions>
             </>
@@ -751,12 +773,12 @@ function App() {
               <DialogTitle id="admin-dialog-title">
                 Touch grass, come back with some real main character energy.{' '}
                 <span role="img" aria-label="skull">
-                  💀
+                  {EMOJI.SKULL}
                 </span>
               </DialogTitle>
               <DialogActions>
                 <Button onClick={handleRoastClose} color="primary">
-                  Skibidi Out!! 😭
+                  Skibidi Out!! {EMOJI.SOB}
                 </Button>
               </DialogActions>
             </>

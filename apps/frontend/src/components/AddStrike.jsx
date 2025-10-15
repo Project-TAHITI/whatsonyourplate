@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { EMOJI } from '../constants/emojis';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -215,10 +216,7 @@ export default function AddStrike({
           }}
           className="comic-font-bold"
         >
-          Add Strike{' '}
-          <span role="img" aria-label="knife">
-            🔪
-          </span>
+          Add Strike {EMOJI.KNIFE}
         </Button>
       </div>
     </Box>
