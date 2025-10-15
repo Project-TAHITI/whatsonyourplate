@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "whatsonyourplate",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Nx workspace for the WhatsonYourPlate project",
   "scripts": {
@@ -13,26 +13,26 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,json,md}\""
   },
   "devDependencies": {
-    "@nrwl/workspace": "17.2.0",
+    "@nrwl/workspace": "19.8.4",
     "eslint": "^9.37.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.0",
-    "nx": "17.2.0",
+    "nx": "21.6.4",
     "prettier": "^3.6.2",
-    "typescript": "5.2.2",
+    "typescript": "5.9.3",
     "vite": "^7.1.9",
-    "@vitejs/plugin-react": "^4.0.0"
+    "@vitejs/plugin-react": "^5.0.4"
   },
   "dependencies": {
     "@date-io/date-fns": "^3.2.1",
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
-    "@mui/material": "^5.14.7",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^7.3.4",
     "@mui/x-date-pickers": "^8.14.0",
     "@supabase/supabase-js": "^2.39.7",
     "date-fns": "^4.1.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   }
 }
