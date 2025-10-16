@@ -14,15 +14,19 @@
   },
   "devDependencies": {
     "@nrwl/workspace": "19.8.4",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
     "eslint": "^9.37.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.0",
-    "nx": "21.6.4",
+    "jsdom": "^27.0.0",
+    "nx": "21.6.5",
     "prettier": "^3.6.2",
     "typescript": "5.9.3",
     "vite": "^7.1.9",
-    "@vitejs/plugin-react": "^5.0.4"
+    "@vitejs/plugin-react": "^5.0.4",
+    "vitest": "^3.2.4"
   },
   "dependencies": {
     "@date-io/date-fns": "^3.2.1",
