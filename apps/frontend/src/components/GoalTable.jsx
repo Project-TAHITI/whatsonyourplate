@@ -6,9 +6,6 @@ import { useTheme } from '@mui/material/styles';
 export default function GoalTable({ type, goalNames, periods, userGoals, openTip, setOpenTip }) {
   const theme = useTheme();
 
-  // State for week header tip
-  const [weekTip, setWeekTip] = React.useState(null); // { key, range }
-
   return (
     <table className="goal-table">
       <thead>
@@ -34,8 +31,6 @@ export default function GoalTable({ type, goalNames, periods, userGoals, openTip
                 key={period}
                 style={{
                   fontSize: '0.97em',
-                  cursor: 'pointer',
-                  position: 'relative',
                   background:
                     theme.palette.mode === 'light'
                       ? theme.palette.tableCell
@@ -44,48 +39,8 @@ export default function GoalTable({ type, goalNames, periods, userGoals, openTip
                   border: `1px solid ${theme.palette.divider}`,
                   transition: 'background 0.3s, color 0.3s',
                 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setWeekTip(
-                    weekTip && weekTip.key === period
-                      ? null
-                      : { key: period, range: getWeekRange(period) }
-                  );
-                }}
-                onTouchStart={(e) => {
-                  e.stopPropagation();
-                  setWeekTip(
-                    weekTip && weekTip.key === period
-                      ? null
-                      : { key: period, range: getWeekRange(period) }
-                  );
-                }}
               >
-                {period}
-                {weekTip && weekTip.key === period && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      left: '50%',
-                      top: '100%',
-                      transform: 'translateX(-50%)',
-                      background: theme.palette.background.paper,
-                      color: theme.palette.text.primary,
-                      border: `1px solid ${theme.palette.divider}`,
-                      borderRadius: 4,
-                      padding: '4px 8px',
-                      fontSize: '0.95em',
-                      zIndex: 20,
-                      boxShadow: theme.shadows[2],
-                      marginTop: 2,
-                      minWidth: 80,
-                      maxWidth: 180,
-                      wordBreak: 'break-word',
-                    }}
-                  >
-                    {weekTip.range}
-                  </div>
-                )}
+                {getWeekRange(period)}
               </th>
             ) : (
               <th

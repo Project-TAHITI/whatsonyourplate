@@ -17,14 +17,14 @@ export default function TrackerView({
 
   const selectedUser = data[selectedUserIndex];
 
-  // Auto-scroll to right for daily/weekly tables if columns > 10
+  // Auto-scroll to right for daily/weekly tables
   useEffect(() => {
     const user = data[selectedUserIndex];
-    if (dailyTableWrapperRef.current && user && Object.keys(user.daily_goals || {}).length > 10) {
+    if (dailyTableWrapperRef.current && user) {
       const el = dailyTableWrapperRef.current;
       el.scrollLeft = el.scrollWidth;
     }
-    if (weeklyTableWrapperRef.current && user && Object.keys(user.weekly_goals || {}).length > 10) {
+    if (weeklyTableWrapperRef.current && user) {
       const el = weeklyTableWrapperRef.current;
       el.scrollLeft = el.scrollWidth;
     }
@@ -92,9 +92,9 @@ export default function TrackerView({
             <section className="user-section" key={user.user_id}>
               {/* Daily Goals Table */}
               <div
-                className={dates.length > 10 ? 'table-scroll-x' : ''}
+                className="table-scroll-x"
                 ref={dailyTableWrapperRef}
-                style={dates.length > 10 ? { overflowX: 'auto', maxWidth: '100%' } : {}}
+                style={{ overflowX: 'auto', maxWidth: '100%' }}
               >
                 <h3>Daily Goals</h3>
                 {dates.length === 0 || dailyGoalNames.length === 0 ? (
@@ -112,9 +112,9 @@ export default function TrackerView({
               </div>
               {/* Weekly Goals Table */}
               <div
-                className={weeks.length > 10 ? 'table-scroll-x' : ''}
+                className="table-scroll-x"
                 ref={weeklyTableWrapperRef}
-                style={weeks.length > 10 ? { overflowX: 'auto', maxWidth: '100%' } : {}}
+                style={{ overflowX: 'auto', maxWidth: '100%' }}
               >
                 <h3>Weekly Goals</h3>
                 {weeks.length === 0 || weeklyGoalNames.length === 0 ? (
