@@ -1,7 +1,7 @@
 import React from 'react';
 import AddStrike from '../components/AddStrike.jsx';
 import { supabase } from '@libs/supabaseClient.js';
-import { sendStrikeNotification } from '../utils/telegramUtils.js';
+import { sendStrikeNotification, sendStrikeSummaryReport } from '../utils/telegramUtils.js';
 
 export default function AddStrikeView({ data, usersMap, setSnackbar, refresh }) {
   return (
@@ -71,6 +71,9 @@ export default function AddStrikeView({ data, usersMap, setSnackbar, refresh }) 
             date: dateStr,
             comments: info.comments,
           }).catch(() => {});
+
+          // Send strike summary report (best effort)
+          sendStrikeSummaryReport(data, usersMap).catch(() => {});
         }
       }}
     />
