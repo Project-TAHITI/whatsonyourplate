@@ -1,9 +1,13 @@
 import React from 'react';
+import log from '../utils/logger';
 import Box from '@mui/material/Box';
 import { EMOJI } from '../constants/emojis';
 
 export default function StrikeSummary({ data, usersMap, getStrikeCount, tallyMarks }) {
-  // Find the user(s) with the highest strikes
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    log.warn('StrikeSummary: No data provided or data is empty');
+    return <div>No strike data available</div>;
+  }
   const userStrikes = data.map((user) => {
     const dailyStrikes = getStrikeCount(user.daily_goals);
     const weeklyStrikes = getStrikeCount(user.weekly_goals);
@@ -11,6 +15,7 @@ export default function StrikeSummary({ data, usersMap, getStrikeCount, tallyMar
   });
   const maxStrikes = Math.max(...userStrikes.map((u) => u.total), 0);
   const topUsers = userStrikes.filter((u) => u.total === maxStrikes).map((u) => u.user_id);
+  log.debug('StrikeSummary rendered. Top users:', topUsers, 'Max strikes:', maxStrikes);
 
   return (
     <section className="strike-summary">

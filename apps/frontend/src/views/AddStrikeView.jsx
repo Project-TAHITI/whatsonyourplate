@@ -1,4 +1,5 @@
 import React from 'react';
+import log from '../utils/logger';
 import AddStrike from '../components/AddStrike.jsx';
 import { supabase } from '@libs/supabaseClient.js';
 import { sendStrikeNotification, sendStrikeSummaryReport } from '../utils/telegramUtils.js';
@@ -46,12 +47,14 @@ export default function AddStrikeView({ data, usersMap, setSnackbar, refresh }) 
           .update({ completed: false, comments: info.comments })
           .match(matchObj);
         if (error) {
+          log.error('Failed to update DB:', error);
           setSnackbar({
             open: true,
             message: 'Failed to update DB: ' + error.message,
             severity: 'error',
           });
         } else {
+          log.info('Strike added for user:', info.user_id, info);
           setSnackbar({ open: true, message: 'Strike added!', severity: 'success' });
           refresh?.run?.();
 
@@ -70,10 +73,14 @@ export default function AddStrikeView({ data, usersMap, setSnackbar, refresh }) 
             goalType: info.goalType,
             date: dateStr,
             comments: info.comments,
-          }).catch(() => {});
+          })
+            .then(() => log.info('Add Strike Telegram notification sent for', userName))
+            .catch((e) => log.warn('Failed to send Telegram notification:', e));
 
           // Send strike summary report (best effort)
-          sendStrikeSummaryReport(data, usersMap).catch(() => {});
+          sendStrikeSummaryReport(data, usersMap)
+            .then(() => log.info('Strike summary Telegram report sent.'))
+            .catch((e) => log.warn('Failed to send strike summary report:', e));
         }
       }}
     />

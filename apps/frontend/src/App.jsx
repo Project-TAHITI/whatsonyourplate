@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import log from './utils/logger';
 import Box from '@mui/material/Box';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
@@ -16,6 +17,11 @@ import AdminDialog from './components/AdminDialog.jsx';
 import './index.css';
 
 function App() {
+  // Log app mount
+  useEffect(() => {
+    log.debug('App mounted');
+    return () => log.debug('App unmounted');
+  }, []);
   const { data, usersMap, error, loading, loadingTimeout, refresh } = useData();
   const [activeTab, setActiveTab] = useState('summary');
   const [selectedUserIndex, setSelectedUserIndex] = useState(0);
@@ -240,7 +246,8 @@ function App() {
 
   // no-op: loadingTimeout handled in hook
 
-  if (error)
+  if (error) {
+    log.error('App error:', error);
     return (
       <div className="app-container" role="alert" aria-live="assertive">
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -248,7 +255,12 @@ function App() {
         </Alert>
       </div>
     );
-  if (loading)
+  }
+  if (loading) {
+    log.debug('App loading...');
+    if (loadingTimeout) {
+      log.warn('Loading timeout detected: possible server issue.');
+    }
     return (
       <div className="app-container" aria-busy="true" aria-live="polite">
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 6 }}>
@@ -262,12 +274,14 @@ function App() {
         </Box>
       </div>
     );
+  }
   // Tab change handler: open AddStrike with admin dialog
   const handleTabChange = (_, v) => {
     if (v === 'addStrike') {
-      // open admin dialog handled via state below
+      log.debug('Admin dialog opened from Add Strike tab.');
       setAdminOpen(true);
     } else {
+      log.debug(`Tab changed to: ${v}`);
       setActiveTab(v);
     }
   };
@@ -341,10 +355,12 @@ function App() {
         <AdminDialog
           open={adminOpen}
           onClose={() => {
+            log.debug('Admin dialog closed.');
             setAdminOpen(false);
             setActiveTab('summary');
           }}
           onApproved={() => {
+            log.debug('Admin dialog approved. Switching to Add Strike.');
             setAdminOpen(false);
             setActiveTab('addStrike');
           }}

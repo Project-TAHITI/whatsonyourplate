@@ -1,10 +1,22 @@
 import React from 'react';
+import log from '../utils/logger';
+import { EMOJI } from '../constants/emojis';
 import { getWeekRange } from '../utils/dateUtils';
 import { useTheme } from '@mui/material/styles';
 
 // GoalTable - renders a table for daily or weekly goals.
 export default function GoalTable({ type, goalNames, periods, userGoals, openTip, setOpenTip }) {
   const theme = useTheme();
+
+  if (!goalNames || goalNames.length === 0) {
+    log.warn('GoalTable: No goal names provided');
+    return <div>No goals to display</div>;
+  }
+  if (!periods || periods.length === 0) {
+    log.warn('GoalTable: No periods provided');
+    return <div>No periods to display</div>;
+  }
+  log.debug('GoalTable rendered', { type, goalCount: goalNames.length, periodCount: periods.length });
 
   return (
     <table className="goal-table">
@@ -114,7 +126,7 @@ export default function GoalTable({ type, goalNames, periods, userGoals, openTip
                     transition: 'background 0.3s, color 0.3s',
                   }}
                 >
-                  {done ? '✔' : '✗'}
+                  {done ? EMOJI.CHECK : EMOJI.CROSS}
                   {openTip && openTip.key === tipKey && hasComment && (
                     <div
                       style={{

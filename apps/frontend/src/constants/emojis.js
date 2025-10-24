@@ -6,6 +6,8 @@ export const EMOJI = {
   CALENDAR_DAY: '📅',
   COMMENT: '💬',
   SUCCESS: '✅',
+  CHECK: '✔',
+  CROSS: '✗',
   DIZZY: '💫',
   SWEAT_SMILE: '😅',
   FLEX: '💪',

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import log from '../utils/logger';
 import { EMOJI } from '../constants/emojis';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -203,9 +204,8 @@ export default function AddStrike({
           disabled={
             !selectedUser || !selectedGoal || (goalType === 'daily' ? !selectedDate : !selectedWeek)
           }
-          onClick={() => {
-            onEdit &&
-              onEdit({
+            onClick={() => {
+              log.debug('Add Strike button clicked', {
                 user_id: selectedUser,
                 goalType,
                 goal: selectedGoal,
@@ -213,7 +213,16 @@ export default function AddStrike({
                 week: goalType === 'weekly' ? selectedWeek : undefined,
                 comments: comments.trim(),
               });
-          }}
+              onEdit &&
+                onEdit({
+                  user_id: selectedUser,
+                  goalType,
+                  goal: selectedGoal,
+                  date: goalType === 'daily' ? selectedDate : undefined,
+                  week: goalType === 'weekly' ? selectedWeek : undefined,
+                  comments: comments.trim(),
+                });
+            }}
           className="comic-font-bold"
         >
           Add Strike {EMOJI.KNIFE}
