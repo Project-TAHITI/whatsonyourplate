@@ -184,11 +184,10 @@ export default function AddStrike({
           label="Comments"
           value={comments}
           onChange={(e) => {
-            const val = e.target.value;
-            // Allow only alphanumerics, comma, hyphen, and single quote
-            if (/^[a-zA-Z0-9,'\- ]*$/.test(val) || val === '') {
-              setComments(val);
-            }
+            const raw = e.target.value;
+            // Sanitize by removing disallowed characters, allow alphanumerics, comma, hyphen, and single quote
+            const sanitized = raw.replace(/[^a-zA-Z0-9,'\- ]+/g, '');
+            setComments(sanitized);
           }}
           fullWidth
           sx={{ mb: 3 }}

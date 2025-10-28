@@ -20,5 +20,11 @@ export default defineConfig({
     setupFiles: ['vitest.setup.js'],
     include: ['src/__tests__/**/*.test.{js,jsx}'],
     css: false,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'json-summary'],
+      include: ['src/**/*.{js,jsx}'],
+      exclude: ['src/__tests__/**', 'src/main.jsx', 'src/**/*.test.{js,jsx}'],
+    },
   },
 });
