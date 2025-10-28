@@ -34,6 +34,7 @@ vi.mock('@libs/supabaseClient.js', () => {
             return {
               range: async (from, to) => {
                 if (state.dailyError) return { data: null, error: state.dailyError, count: total };
+                if (state.dailyReturnNull) return { data: null, error: null, count: total };
                 const arr = state.daily || [];
                 const slice = arr.slice(from, Math.min((to ?? arr.length - 1) + 1, arr.length));
                 return { data: slice, error: null, count: total };
@@ -50,6 +51,7 @@ vi.mock('@libs/supabaseClient.js', () => {
               range: async (from, to) => {
                 if (state.weeklyError)
                   return { data: null, error: state.weeklyError, count: total };
+                if (state.weeklyReturnNull) return { data: null, error: null, count: total };
                 const arr = state.weekly || [];
                 const slice = arr.slice(from, Math.min((to ?? arr.length - 1) + 1, arr.length));
                 return { data: slice, error: null, count: total };
@@ -70,12 +72,16 @@ describe('useData', () => {
     globalThis.__supabaseMock = initialMockState();
   });
 
-  it('initializes with loading true and empty data', () => {
+  it('initializes with loading true and empty data', async () => {
     const { result } = renderHook(() => useData());
+    // Assert initial state immediately after mount
     expect(result.current.loading).toBe(true);
     expect(result.current.data).toEqual([]);
     expect(result.current.usersMap).toEqual({});
     expect(result.current.error).toBe('');
+
+    // Wait for the async effect to settle to avoid act warnings
+    await waitFor(() => expect(result.current.loading).toBe(false));
   });
 
   it('loads users and groups daily/weekly data on success', async () => {
@@ -194,5 +200,149 @@ describe('useData', () => {
 
     const forU1 = result.current.data.find((d) => d.user_id === 'u1');
     expect(forU1.daily_goals['2025-10-27']).toHaveLength(1200);
+  });
+
+  it('fetches weekly data in batches when count exceeds page size', async () => {
+    const state = globalThis.__supabaseMock;
+    state.users = [{ user_id: 'u1', user_name: 'Alice' }];
+    state.weekly = Array.from({ length: 1500 }, (_, i) => ({
+      user_id: 'u1',
+      week: '2025-W44',
+      goal: `WG${i}`,
+      completed: i % 2 === 0,
+      comments: '',
+    }));
+    state.weeklyCount = 1500;
+
+    const { result } = renderHook(() => useData());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    const forU1 = result.current.data.find((d) => d.user_id === 'u1');
+    expect(forU1.weekly_goals['2025-W44']).toHaveLength(1500);
+  });
+
+  it('handles null count (no exact count) by fetching first page only', async () => {
+    const state = globalThis.__supabaseMock;
+    state.users = [{ user_id: 'u1', user_name: 'Alice' }];
+    // Provide some rows but set count to null to exercise branch
+    state.daily = [
+      { user_id: 'u1', date: '2025-10-27', goal: 'G1', completed: false, comments: '' },
+      { user_id: 'u1', date: '2025-10-27', goal: 'G2', completed: true, comments: '' },
+    ];
+    state.dailyCount = null;
+    state.weekly = [
+      { user_id: 'u1', week: '2025-W44', goal: 'W1', completed: false, comments: '' },
+    ];
+    state.weeklyCount = null;
+
+    const { result } = renderHook(() => useData());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    const forU1 = result.current.data.find((d) => d.user_id === 'u1');
+    expect(forU1.daily_goals['2025-10-27']).toHaveLength(2);
+    expect(forU1.weekly_goals['2025-W44']).toHaveLength(1);
+  });
+
+  it('handles zero count (no rows) by doing a single request and exiting', async () => {
+    const state = globalThis.__supabaseMock;
+    state.users = [{ user_id: 'u1', user_name: 'Alice' }];
+    state.daily = []; // no rows
+    state.dailyCount = 0; // explicit zero triggers do-while once then exit
+    state.weekly = [];
+    state.weeklyCount = 0;
+
+    const { result } = renderHook(() => useData());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // Should produce user entry with empty goal maps
+    expect(result.current.data).toHaveLength(1);
+    const forU1 = result.current.data[0];
+    expect(forU1.daily_goals).toEqual({});
+    expect(forU1.weekly_goals).toEqual({});
+  });
+
+  it('treats null daily/weekly batches as no-op (if batch falsy branch)', async () => {
+    const state = globalThis.__supabaseMock;
+    state.users = [{ user_id: 'u1', user_name: 'Alice' }];
+    // Configure mock to return null for both daily and weekly batches
+    state.dailyReturnNull = true;
+    state.dailyCount = 0; // do-while executes once
+    state.weeklyReturnNull = true;
+    state.weeklyCount = 0;
+
+    const { result } = renderHook(() => useData());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    // No crashes and empty grouped data
+    expect(result.current.data).toHaveLength(1);
+    expect(result.current.data[0].daily_goals).toEqual({});
+    expect(result.current.data[0].weekly_goals).toEqual({});
+  });
+
+  it('cleans up timeout when unmounted during loading (no lingering timers)', async () => {
+    vi.useFakeTimers();
+    const state = globalThis.__supabaseMock;
+    state.users = [{ user_id: 'u1', user_name: 'Alice' }];
+    // Delay long enough so component stays in loading
+    state.usersDelayMs = 20000;
+
+    const clearSpy = vi.spyOn(global, 'clearTimeout');
+    const { unmount } = renderHook(() => useData());
+
+    // Let some time pass but below the 10s threshold
+    await act(async () => {
+      vi.advanceTimersByTime(5000);
+    });
+
+    // Unmount while still loading -> cleanup path in effect should run and clearTimeout called
+    unmount();
+    expect(clearSpy).toHaveBeenCalled();
+
+    // Even if we advance time beyond the threshold, there should be no updates (component is unmounted)
+    await act(async () => {
+      vi.advanceTimersByTime(10000);
+    });
+
+    vi.useRealTimers();
+    clearSpy.mockRestore();
+  });
+
+  it('does not set loadingTimeout if load completes before threshold', async () => {
+    vi.useFakeTimers();
+    const state = globalThis.__supabaseMock;
+    state.users = [{ user_id: 'u1', user_name: 'Alice' }];
+    // Quick fetch under the 10s threshold
+    state.usersDelayMs = 1000;
+
+    const { result } = renderHook(() => useData());
+
+    // Advance beyond the fetch delay but below threshold at first
+    await act(async () => {
+      vi.advanceTimersByTime(1500);
+    });
+
+    // Switch back to real timers so waitFor can poll resolved promises
+    vi.useRealTimers();
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.loadingTimeout).toBe(false);
+  });
+
+  it('sets error when daily or weekly fetch fails', async () => {
+    const state = globalThis.__supabaseMock;
+    state.users = [{ user_id: 'u1', user_name: 'Alice' }];
+    state.dailyError = new Error('daily failed');
+
+    const { result } = renderHook(() => useData());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(result.current.error).toBe('Could not load tracker or user data');
+    // Now try weekly error path
+    globalThis.__supabaseMock = initialMockState();
+    const st2 = globalThis.__supabaseMock;
+    st2.users = [{ user_id: 'u1', user_name: 'Alice' }];
+    st2.weeklyError = new Error('weekly failed');
+    const { result: result2 } = renderHook(() => useData());
+    await waitFor(() => expect(result2.current.loading).toBe(false));
+    expect(result2.current.error).toBe('Could not load tracker or user data');
   });
 });

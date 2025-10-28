@@ -1,6 +1,28 @@
 import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
+import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+
+// Mock MUI Select and MenuItem for reliable jsdom interactions
+vi.mock('@mui/material/Select', () => ({
+  default: ({ label, value, onChange, children, inputProps = {}, ...props }) => (
+    <select
+      aria-label={inputProps['aria-label'] || props['aria-label'] || label}
+      value={value ?? ''}
+      onChange={(e) => onChange({ target: { value: e.target.value } })}
+      disabled={props.disabled}
+    >
+      <option value=""></option>
+      {children}
+    </select>
+  ),
+}));
+vi.mock('@mui/material/MenuItem', () => ({
+  default: ({ value, children, disabled }) => (
+    <option value={value} disabled={disabled}>
+      {children}
+    </option>
+  ),
+}));
 
 // Mock date pickers to simplify interactions
 vi.mock('@mui/x-date-pickers/LocalizationProvider', () => ({
@@ -26,7 +48,7 @@ function renderWithTheme(ui) {
 }
 
 describe('AddStrike', () => {
-  it('disables Add Strike button until required fields are set (daily)', () => {
+  it('disables Add Strike button until required fields are set (daily)', async () => {
     const onEdit = vi.fn();
     renderWithTheme(
       <AddStrike
@@ -41,21 +63,21 @@ describe('AddStrike', () => {
     expect(addBtn).toBeDisabled();
 
     // Select user
-    fireEvent.mouseDown(screen.getByLabelText('Select user'));
-    fireEvent.click(screen.getByText('Alice'));
+    const userSelect = screen.getByLabelText('Select user');
+    fireEvent.change(userSelect, { target: { value: 'u1' } });
 
     // Select goal
-    fireEvent.mouseDown(screen.getByLabelText('Select goal'));
-    fireEvent.click(screen.getByText('No Sugar'));
+    const goalSelect = screen.getByLabelText('Select goal');
+    fireEvent.change(goalSelect, { target: { value: 'No Sugar' } });
 
     // Select date
     const dateInput = screen.getByLabelText('Select date');
     fireEvent.change(dateInput, { target: { value: '2025-10-16' } });
 
-    expect(addBtn).not.toBeDisabled();
+    await waitFor(() => expect(addBtn).not.toBeDisabled());
   });
 
-  it('submits daily strike with trimmed comments', () => {
+  it('submits daily strike with trimmed comments', async () => {
     const onEdit = vi.fn();
     renderWithTheme(
       <AddStrike
@@ -67,11 +89,11 @@ describe('AddStrike', () => {
       />
     );
     // User
-    fireEvent.mouseDown(screen.getByLabelText('Select user'));
-    fireEvent.click(screen.getByText('Alice'));
+    const userSelect = screen.getByLabelText('Select user');
+    fireEvent.change(userSelect, { target: { value: 'u1' } });
     // Goal
-    fireEvent.mouseDown(screen.getByLabelText('Select goal'));
-    fireEvent.click(screen.getByText('No Sugar'));
+    const goalSelect = screen.getByLabelText('Select goal');
+    fireEvent.change(goalSelect, { target: { value: 'No Sugar' } });
     // Date
     const dateInput = screen.getByLabelText('Select date');
     fireEvent.change(dateInput, { target: { value: '2025-10-16' } });
@@ -80,7 +102,9 @@ describe('AddStrike', () => {
     fireEvent.change(comments, { target: { value: "  Hard day's, test!  " } });
     // '!' should be filtered out; spaces trimmed by component on submit
 
-    fireEvent.click(screen.getByRole('button', { name: /add strike/i }));
+  const addBtn = screen.getByRole('button', { name: /add strike/i });
+  await waitFor(() => expect(addBtn).not.toBeDisabled());
+  fireEvent.click(addBtn);
 
     expect(onEdit).toHaveBeenCalledTimes(1);
     const payload = onEdit.mock.calls[0][0];
@@ -95,7 +119,7 @@ describe('AddStrike', () => {
     expect(payload.week).toBeUndefined();
   });
 
-  it('switching to weekly uses week selection and resets selected goal', () => {
+  it('switching to weekly uses week selection and resets selected goal', async () => {
     const onEdit = vi.fn();
     renderWithTheme(
       <AddStrike
@@ -108,27 +132,27 @@ describe('AddStrike', () => {
     );
 
     // Select user
-    fireEvent.mouseDown(screen.getByLabelText('Select user'));
-    fireEvent.click(screen.getByText('Alice'));
+    const userSelect = screen.getByLabelText('Select user');
+    fireEvent.change(userSelect, { target: { value: 'u1' } });
 
     // Select a daily goal first
-    fireEvent.mouseDown(screen.getByLabelText('Select goal'));
-    fireEvent.click(screen.getByText('No Sugar'));
+    const goalSelect1 = screen.getByLabelText('Select goal');
+    fireEvent.change(goalSelect1, { target: { value: 'No Sugar' } });
 
     // Switch to weekly
     fireEvent.click(screen.getByLabelText('Weekly'));
 
     // Goal should be reset; open goal select and pick weekly goal
-    fireEvent.mouseDown(screen.getByLabelText('Select goal'));
-    fireEvent.click(screen.getByText('Gym'));
+    const goalSelect2 = screen.getByLabelText('Select goal');
+    fireEvent.change(goalSelect2, { target: { value: 'Gym' } });
 
     // Select week
-    fireEvent.mouseDown(screen.getByLabelText('Select week'));
-    fireEvent.click(screen.getByText(/2025-W42/));
+    const weekSelect = screen.getByLabelText('Select week');
+    fireEvent.change(weekSelect, { target: { value: '2025-W42' } });
 
     // Button enabled now
     const addBtn = screen.getByRole('button', { name: /add strike/i });
-    expect(addBtn).not.toBeDisabled();
+    await waitFor(() => expect(addBtn).not.toBeDisabled());
 
     fireEvent.click(addBtn);
 

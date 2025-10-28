@@ -162,4 +162,83 @@ describe('GoalTable', () => {
     expect(cells[0].className).toContain('cell-yes');
     expect(cells[1].className).toContain('cell-no');
   });
+
+  it('applies tooltip positioning classes for all edge positions', () => {
+    const goalNames = ['G1', 'G2'];
+    const periods = ['P1', 'P2'];
+    const userGoals = {
+      P1: [
+        { goal: 'G1', completed: false, comments: 'c00' },
+        { goal: 'G2', completed: false, comments: 'c10' },
+      ],
+      P2: [
+        { goal: 'G1', completed: false, comments: 'c01' },
+        { goal: 'G2', completed: false, comments: 'c11' },
+      ],
+    };
+
+    const { rerender, container } = render(
+      <ThemeProvider theme={theme}>
+        <GoalTable
+          type="daily"
+          goalNames={goalNames}
+          periods={periods}
+          userGoals={userGoals}
+          openTip={{ key: 'daily|G1|P1', comment: 'c00' }}
+          setOpenTip={() => {}}
+        />
+      </ThemeProvider>
+    );
+    // (row0,col0) => tooltip-below
+    let tooltip = container.querySelector('.goal-tooltip');
+    expect(tooltip.className).toContain('tooltip-below');
+
+    // (row0,col1) => tooltip-left
+    rerender(
+      <ThemeProvider theme={theme}>
+        <GoalTable
+          type="daily"
+          goalNames={goalNames}
+          periods={periods}
+          userGoals={userGoals}
+          openTip={{ key: 'daily|G1|P2', comment: 'c01' }}
+          setOpenTip={() => {}}
+        />
+      </ThemeProvider>
+    );
+    tooltip = container.querySelector('.goal-tooltip');
+    expect(tooltip.className).toContain('tooltip-left');
+
+    // (row1,col0) => tooltip-above
+    rerender(
+      <ThemeProvider theme={theme}>
+        <GoalTable
+          type="daily"
+          goalNames={goalNames}
+          periods={periods}
+          userGoals={userGoals}
+          openTip={{ key: 'daily|G2|P1', comment: 'c10' }}
+          setOpenTip={() => {}}
+        />
+      </ThemeProvider>
+    );
+    tooltip = container.querySelector('.goal-tooltip');
+    expect(tooltip.className).toContain('tooltip-above');
+
+    // (row1,col1) => tooltip-above-left
+    rerender(
+      <ThemeProvider theme={theme}>
+        <GoalTable
+          type="daily"
+          goalNames={goalNames}
+          periods={periods}
+          userGoals={userGoals}
+          openTip={{ key: 'daily|G2|P2', comment: 'c11' }}
+          setOpenTip={() => {}}
+        />
+      </ThemeProvider>
+    );
+    tooltip = container.querySelector('.goal-tooltip');
+    expect(tooltip.className).toContain('tooltip-above-left');
+  });
 });

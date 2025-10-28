@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitForElementToBeRemoved } from '@testing-library/react';
 
 // Mock child views to keep App tests focused on wiring/flows
 vi.mock('../views/SummaryView.jsx', () => ({
@@ -11,7 +11,19 @@ vi.mock('../views/TrackerView.jsx', () => ({
   default: () => <div data-testid="tracker-view">Tracker</div>,
 }));
 vi.mock('../views/AddStrikeView.jsx', () => ({
-  default: () => <div data-testid="addstrike-view">AddStrike</div>,
+  default: ({ setSnackbar }) => (
+    <div data-testid="addstrike-view">
+      AddStrike
+      <button
+        type="button"
+        onClick={() =>
+          setSnackbar({ open: true, message: 'Strike added!', severity: 'success' })
+        }
+      >
+        Trigger Snackbar
+      </button>
+    </div>
+  ),
 }));
 // Mock ThemeToggleButton to a simple button
 vi.mock('../components/ui/ThemeToggleButton.jsx', () => ({
@@ -193,5 +205,76 @@ describe('App', () => {
     // Tracker view should render
     expect(screen.getByTestId('tracker-view')).toBeInTheDocument();
     expect(screen.queryByTestId('summary-view')).not.toBeInTheDocument();
+  });
+
+  it('initializes light mode from localStorage and toggles to dark, updating body classes and storage', () => {
+    // Make initial theme light
+    const getSpy = vi
+      .spyOn(window.localStorage.__proto__, 'getItem')
+      .mockImplementation((key) => (key === 'themeMode' ? 'light' : null));
+    const setSpy = vi.spyOn(window.localStorage.__proto__, 'setItem');
+
+    setUseDataState({
+      data: [],
+      usersMap: {},
+      error: '',
+      loading: false,
+      loadingTimeout: false,
+      refresh: { run: vi.fn() },
+    });
+
+    render(<App />);
+
+    // Body gets light-theme class
+    expect(document.body.classList.contains('light-theme')).toBe(true);
+    expect(document.body.classList.contains('dark-theme')).toBe(false);
+
+    // Toggle to dark
+    fireEvent.click(screen.getByRole('button', { name: /toggle theme/i }));
+
+    // localStorage updated to dark
+    expect(setSpy).toHaveBeenCalledWith('themeMode', 'dark');
+
+    // Body classes flip
+    expect(document.body.classList.contains('dark-theme')).toBe(true);
+    expect(document.body.classList.contains('light-theme')).toBe(false);
+
+    getSpy.mockRestore();
+    setSpy.mockRestore();
+  });
+
+  it('opens snackbar from AddStrikeView and closes via Alert close button', async () => {
+    setUseDataState({
+      data: [{ user_id: 'u1', daily_goals: {}, weekly_goals: {} }],
+      usersMap: { u1: 'Alice' },
+      error: '',
+      loading: false,
+      loadingTimeout: false,
+      refresh: { run: vi.fn() },
+    });
+
+    render(<App />);
+
+    // Open Admin dialog by clicking Add Strike tab
+    fireEvent.click(screen.getByRole('button', { name: /add strike tab/i }));
+    // Approve to navigate into AddStrike view
+    fireEvent.click(screen.getByRole('button', { name: /approve/i }));
+    expect(screen.getByTestId('addstrike-view')).toBeInTheDocument();
+
+    // Trigger snackbar from inside AddStrikeView mock
+    fireEvent.click(screen.getByRole('button', { name: /trigger snackbar/i }));
+
+    // Snackbar shows success message
+    const msg = screen.getByText('Strike added!');
+    expect(msg).toBeInTheDocument();
+
+    // Click the Alert close button (aria-label="close") if present
+    const closeBtn = screen.queryByRole('button', { name: /close/i });
+    if (closeBtn) {
+      fireEvent.click(closeBtn);
+    }
+
+    // Wait for the snackbar content to be removed from the DOM
+    await waitForElementToBeRemoved(() => screen.queryByText('Strike added!'));
   });
 });
