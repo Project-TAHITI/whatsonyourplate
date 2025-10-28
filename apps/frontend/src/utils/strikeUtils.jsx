@@ -1,4 +1,5 @@
 import React from 'react';
+import { weekToLastDay } from './dateUtils.js';
 
 export function TallySVG({ count }) {
   const barX = [3, 8, 13, 18];
@@ -60,4 +61,61 @@ export function getStrikeCount(goals) {
     });
   });
   return strikes;
+}
+
+/**
+ * Calculate strikes for a user from their daily and weekly goals
+ * @param {Object} goalInfo - User object with daily_goals and weekly_goals
+ * @returns {{ daily: Array, weekly: Array, total: number }} - Arrays of incomplete strikes and total count
+ */
+export function calculateStrikes(goalInfo) {
+  const d = [];
+  Object.entries(goalInfo.daily_goals || {}).forEach(([date, goals]) => {
+    (goals || []).forEach((g) => {
+      // Only count incomplete strikes
+      if (g.completed === false) {
+        d.push({ goal: g.goal, comments: g.comments || '', date });
+      }
+    });
+  });
+  
+  const w = [];
+  Object.entries(goalInfo.weekly_goals || {}).forEach(([week, goals]) => {
+    (goals || []).forEach((g) => {
+      // Only count incomplete strikes
+      if (g.completed === false) {
+        w.push({ goal: g.goal, comments: g.comments || '', week });
+      }
+    });
+  });
+  
+  return {
+    daily: d,
+    weekly: w,
+    total: d.length + w.length,
+  };
+}
+
+/**   
+ *  Pick last incomplete item by actual date (weekly items use last day of week).
+*/
+export function pickLastStrike(dailyStrikes = [], weeklyStrikes = []) {
+  // Convert daily items to {date, goal, comments}
+  const dailyWithDate = dailyStrikes.map((d) => ({
+    sortDate: new Date(d.date),
+    goal: d.goal,
+    comments: d.comments,
+  }));
+  // Convert weekly items to {date (last day of week), goal, comments}
+  const weeklyWithDate = weeklyStrikes.map((w) => ({
+    sortDate: weekToLastDay(w.week),
+    goal: w.goal,
+    comments: w.comments,
+  }));
+  const combined = [...dailyWithDate, ...weeklyWithDate];
+  if (!combined.length) return null;
+  // Sort by date descending (most recent first)
+  combined.sort((a, b) => b.sortDate.getTime() - a.sortDate.getTime());
+  const last = combined[0];
+  return last.comments?.trim() ? last.comments.trim() : last.goal;
 }

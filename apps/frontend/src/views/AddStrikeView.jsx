@@ -77,7 +77,6 @@ export default function AddStrikeView({ data, usersMap, setSnackbar, refresh }) 
             .then(() => log.info('Add Strike Telegram notification sent for', userName))
             .catch((e) => log.warn('Failed to send Telegram notification:', e));
 
-          // Send strike summary report (best effort)
           sendStrikeSummaryReport(data, usersMap)
             .then(() => log.info('Strike summary Telegram report sent.'))
             .catch((e) => log.warn('Failed to send strike summary report:', e));
