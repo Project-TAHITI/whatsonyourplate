@@ -203,8 +203,17 @@ export default function AddStrike({
           disabled={
             !selectedUser || !selectedGoal || (goalType === 'daily' ? !selectedDate : !selectedWeek)
           }
-            onClick={() => {
-              log.debug('Add Strike button clicked', {
+          onClick={() => {
+            log.debug('Add Strike button clicked', {
+              user_id: selectedUser,
+              goalType,
+              goal: selectedGoal,
+              date: goalType === 'daily' ? selectedDate : undefined,
+              week: goalType === 'weekly' ? selectedWeek : undefined,
+              comments: comments.trim(),
+            });
+            onEdit &&
+              onEdit({
                 user_id: selectedUser,
                 goalType,
                 goal: selectedGoal,
@@ -212,16 +221,7 @@ export default function AddStrike({
                 week: goalType === 'weekly' ? selectedWeek : undefined,
                 comments: comments.trim(),
               });
-              onEdit &&
-                onEdit({
-                  user_id: selectedUser,
-                  goalType,
-                  goal: selectedGoal,
-                  date: goalType === 'daily' ? selectedDate : undefined,
-                  week: goalType === 'weekly' ? selectedWeek : undefined,
-                  comments: comments.trim(),
-                });
-            }}
+          }}
           className="comic-font-bold"
         >
           Add Strike {EMOJI.KNIFE}

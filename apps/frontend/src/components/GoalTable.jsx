@@ -16,7 +16,11 @@ export default function GoalTable({ type, goalNames, periods, userGoals, openTip
     log.warn('GoalTable: No periods provided');
     return <div>No periods to display</div>;
   }
-  log.debug('GoalTable rendered', { type, goalCount: goalNames.length, periodCount: periods.length });
+  log.debug('GoalTable rendered', {
+    type,
+    goalCount: goalNames.length,
+    periodCount: periods.length,
+  });
 
   return (
     <table className="goal-table">

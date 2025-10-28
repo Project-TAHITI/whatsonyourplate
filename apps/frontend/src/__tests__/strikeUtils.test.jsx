@@ -1,4 +1,10 @@
-import { tallyMarks, getStrikeCount, TallySVG, pickLastStrike, calculateStrikes } from '../utils/strikeUtils.jsx';
+import {
+  tallyMarks,
+  getStrikeCount,
+  TallySVG,
+  pickLastStrike,
+  calculateStrikes,
+} from '../utils/strikeUtils.jsx';
 import React from 'react';
 import { render } from '@testing-library/react';
 
@@ -75,9 +81,7 @@ describe('strikeUtils', () => {
       expect(pickLastStrike(daily, [])).toBe('latest daily');
     });
     it('returns last weekly comment if present', () => {
-      const weekly = [
-        { week: '2025-W40', goal: 'C', comments: 'weekly comment' },
-      ];
+      const weekly = [{ week: '2025-W40', goal: 'C', comments: 'weekly comment' }];
       expect(pickLastStrike([], weekly)).toBe('weekly comment');
     });
     it('returns last goal if no comment', () => {
@@ -88,9 +92,7 @@ describe('strikeUtils', () => {
       expect(pickLastStrike(daily, [])).toBe('B');
     });
     it('sorts by date/last day of week', () => {
-      const daily = [
-        { date: '2025-10-01', goal: 'A', comments: '' },
-      ];
+      const daily = [{ date: '2025-10-01', goal: 'A', comments: '' }];
       const weekly = [
         { week: '2025-W41', goal: 'C', comments: 'latest week' },
         { week: '2025-W40', goal: 'B', comments: '' },
@@ -115,9 +117,7 @@ describe('strikeUtils', () => {
             { goal: 'No Sugar', completed: false, comments: 'Hard day' },
             { goal: 'Exercise', completed: true, comments: '' },
           ],
-          '2025-10-16': [
-            { goal: 'No Sugar', completed: false, comments: '' },
-          ],
+          '2025-10-16': [{ goal: 'No Sugar', completed: false, comments: '' }],
         },
         weekly_goals: {},
       };
@@ -125,7 +125,11 @@ describe('strikeUtils', () => {
       expect(result.daily).toHaveLength(2);
       expect(result.weekly).toHaveLength(0);
       expect(result.total).toBe(2);
-      expect(result.daily[0]).toEqual({ goal: 'No Sugar', comments: 'Hard day', date: '2025-10-15' });
+      expect(result.daily[0]).toEqual({
+        goal: 'No Sugar',
+        comments: 'Hard day',
+        date: '2025-10-15',
+      });
     });
 
     it('counts only incomplete weekly goals', () => {
@@ -136,9 +140,7 @@ describe('strikeUtils', () => {
             { goal: 'Gym', completed: false, comments: 'Missed' },
             { goal: 'Read', completed: true, comments: '' },
           ],
-          '2025-W41': [
-            { goal: 'Gym', completed: false, comments: '' },
-          ],
+          '2025-W41': [{ goal: 'Gym', completed: false, comments: '' }],
         },
       };
       const result = calculateStrikes(goalData);

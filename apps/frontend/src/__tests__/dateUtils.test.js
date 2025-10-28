@@ -1,5 +1,9 @@
-
-import { getWeekRange, weekToLastDay, formatDayMonthHour, getTodayISO } from '../utils/dateUtils.js';
+import {
+  getWeekRange,
+  weekToLastDay,
+  formatDayMonthHour,
+  getTodayISO,
+} from '../utils/dateUtils.js';
 
 // --- getWeekRange tests (merged) ---
 describe('getWeekRange', () => {

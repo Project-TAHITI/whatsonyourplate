@@ -77,7 +77,9 @@ describe('AddStrikeView', () => {
       comments: 'Tough day',
     };
 
-    render(<AddStrikeView data={data} usersMap={usersMap} setSnackbar={setSnackbar} refresh={refresh} />);
+    render(
+      <AddStrikeView data={data} usersMap={usersMap} setSnackbar={setSnackbar} refresh={refresh} />
+    );
 
     fireEvent.click(screen.getByTestId('trigger-onedit'));
 
@@ -93,7 +95,11 @@ describe('AddStrikeView', () => {
     // Snackbar success and refresh
     // allow pending promises to flush
     await Promise.resolve();
-    expect(setSnackbar).toHaveBeenCalledWith({ open: true, message: 'Strike added!', severity: 'success' });
+    expect(setSnackbar).toHaveBeenCalledWith({
+      open: true,
+      message: 'Strike added!',
+      severity: 'success',
+    });
     expect(refresh.run).toHaveBeenCalled();
 
     // Telegram notifications
@@ -135,7 +141,9 @@ describe('AddStrikeView', () => {
       comments: '',
     };
 
-    render(<AddStrikeView data={data} usersMap={usersMap} setSnackbar={setSnackbar} refresh={refresh} />);
+    render(
+      <AddStrikeView data={data} usersMap={usersMap} setSnackbar={setSnackbar} refresh={refresh} />
+    );
 
     fireEvent.click(screen.getByTestId('trigger-onedit'));
 

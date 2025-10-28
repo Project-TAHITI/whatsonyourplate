@@ -1,4 +1,3 @@
-
 import log from 'loglevel';
 import prefix from 'loglevel-plugin-prefix';
 

@@ -1,5 +1,9 @@
-
-import { generateStrikeAddedMessage, sendStrikeNotification, generateStrikeSummaryMessage, sendStrikeSummaryReport } from '../utils/telegramUtils.js';
+import {
+  generateStrikeAddedMessage,
+  sendStrikeNotification,
+  generateStrikeSummaryMessage,
+  sendStrikeSummaryReport,
+} from '../utils/telegramUtils.js';
 import { EMOJI } from '../constants/emojis.js';
 
 describe('formatStrikeMessage', () => {
@@ -87,7 +91,7 @@ describe('generateStrikeSummaryMessage', () => {
     ];
     const usersMap = { u1: 'Alice', u2: 'Bob' };
     const message = generateStrikeSummaryMessage(data, usersMap);
-    
+
     // Should include header with date/time
     expect(message).toMatch(/\d{2}-\w{3} \(\d{2} (AM|PM)\)/);
     // Should include sorted user lines
@@ -95,8 +99,8 @@ describe('generateStrikeSummaryMessage', () => {
     expect(message).toContain('Bob: 1');
     // Should be sorted alphabetically
     const lines = message.split('\n');
-    const aliceIndex = lines.findIndex(l => l.includes('Alice'));
-    const bobIndex = lines.findIndex(l => l.includes('Bob'));
+    const aliceIndex = lines.findIndex((l) => l.includes('Alice'));
+    const bobIndex = lines.findIndex((l) => l.includes('Bob'));
     expect(aliceIndex).toBeLessThan(bobIndex);
   });
 
@@ -160,7 +164,7 @@ describe('sendStrikeSummaryReport', () => {
   it('sends summary message via telegram and returns result', async () => {
     const { sendTelegramMessage } = await import('@libs/telegramClient.js');
     sendTelegramMessage.mockResolvedValueOnce(true);
-    
+
     const data = [
       {
         user_id: 'u1',
@@ -169,11 +173,11 @@ describe('sendStrikeSummaryReport', () => {
       },
     ];
     const usersMap = { u1: 'Alice' };
-    
+
     const result = await sendStrikeSummaryReport(data, usersMap);
     expect(sendTelegramMessage).toHaveBeenCalled();
     expect(result).toBe(true);
-    
+
     // Verify message contains expected content
     const callArg = sendTelegramMessage.mock.calls[0][0];
     expect(callArg).toContain('Alice: 1');
@@ -182,9 +186,7 @@ describe('sendStrikeSummaryReport', () => {
   it('propagates error from telegram client', async () => {
     const { sendTelegramMessage } = await import('@libs/telegramClient.js');
     sendTelegramMessage.mockRejectedValueOnce(new Error('network fail'));
-    
-    await expect(
-      sendStrikeSummaryReport([], {})
-    ).rejects.toThrow('network fail');
+
+    await expect(sendStrikeSummaryReport([], {})).rejects.toThrow('network fail');
   });
 });

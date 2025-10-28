@@ -69,7 +69,7 @@ describe('GoalTable', () => {
       <ThemeProvider theme={theme}>
         <GoalTable
           type="daily"
-          goalNames={["No Sugar"]}
+          goalNames={['No Sugar']}
           periods={[]}
           userGoals={{}}
           openTip={null}
@@ -89,8 +89,8 @@ describe('GoalTable', () => {
       <ThemeProvider theme={theme}>
         <GoalTable
           type="weekly"
-          goalNames={["Gym"]}
-          periods={["2025-W42"]}
+          goalNames={['Gym']}
+          periods={['2025-W42']}
           userGoals={{ '2025-W42': [{ goal: 'Gym', completed: false, comments: '' }] }}
           openTip={null}
           setOpenTip={() => {}}
@@ -147,8 +147,8 @@ describe('GoalTable', () => {
       <ThemeProvider theme={theme}>
         <GoalTable
           type="daily"
-          goalNames={["NoSugar"]}
-          periods={["2025-10-15", "2025-10-16"]}
+          goalNames={['NoSugar']}
+          periods={['2025-10-15', '2025-10-16']}
           userGoals={{
             '2025-10-15': [{ goal: 'NoSugar', completed: true, comments: '' }],
             '2025-10-16': [{ goal: 'NoSugar', completed: false, comments: '' }],

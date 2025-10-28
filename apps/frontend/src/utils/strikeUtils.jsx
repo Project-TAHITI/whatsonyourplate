@@ -78,7 +78,7 @@ export function calculateStrikes(goalInfo) {
       }
     });
   });
-  
+
   const w = [];
   Object.entries(goalInfo.weekly_goals || {}).forEach(([week, goals]) => {
     (goals || []).forEach((g) => {
@@ -88,7 +88,7 @@ export function calculateStrikes(goalInfo) {
       }
     });
   });
-  
+
   return {
     daily: d,
     weekly: w,
@@ -96,9 +96,9 @@ export function calculateStrikes(goalInfo) {
   };
 }
 
-/**   
+/**
  *  Pick last incomplete item by actual date (weekly items use last day of week).
-*/
+ */
 export function pickLastStrike(dailyStrikes = [], weeklyStrikes = []) {
   // Convert daily items to {date, goal, comments}
   const dailyWithDate = dailyStrikes.map((d) => ({

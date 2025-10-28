@@ -57,23 +57,23 @@ export function weekToLastDay(weekStr) {
   const [yearStr, wStr] = weekStr.split('-W');
   const year = parseInt(yearStr, 10);
   const week = parseInt(wStr, 10);
-  
+
   // Calculate number of ISO weeks in the year
   const maxWeeks = getISOWeeksInYear(year);
   if (isNaN(year) || isNaN(week) || week < 1 || week > maxWeeks) {
     throw new Error('Invalid week string values.');
   }
-  
+
   // Find Monday of week 1 (week containing Jan 4)
   const jan4 = new Date(Date.UTC(year, 0, 4));
   const jan4Day = jan4.getUTCDay() || 7;
   const week1Monday = new Date(jan4);
   week1Monday.setUTCDate(jan4.getUTCDate() - (jan4Day - 1));
-  
+
   // Monday of target week
   const weekMonday = new Date(week1Monday);
   weekMonday.setUTCDate(week1Monday.getUTCDate() + (week - 1) * 7);
-  
+
   // Sunday (last day) is Monday + 6 days
   const weekSunday = new Date(weekMonday);
   weekSunday.setUTCDate(weekMonday.getUTCDate() + 6);

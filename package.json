@@ -9,7 +9,7 @@
     "serve": "nx serve",
     "build": "nx build",
     "test": "nx test",
-    "lint": "eslint \"**/*.{js,jsx,ts,tsx}\" --max-warnings=0",
+    "lint": "eslint . --max-warnings=0",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,css,json,md}\""
   },
   "devDependencies": {

@@ -48,7 +48,8 @@ vi.mock('@libs/supabaseClient.js', () => {
             const total = state.weeklyCount ?? (state.weekly || []).length;
             return {
               range: async (from, to) => {
-                if (state.weeklyError) return { data: null, error: state.weeklyError, count: total };
+                if (state.weeklyError)
+                  return { data: null, error: state.weeklyError, count: total };
                 const arr = state.weekly || [];
                 const slice = arr.slice(from, Math.min((to ?? arr.length - 1) + 1, arr.length));
                 return { data: slice, error: null, count: total };

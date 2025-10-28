@@ -16,19 +16,20 @@ vi.mock('../views/AddStrikeView.jsx', () => ({
 // Mock ThemeToggleButton to a simple button
 vi.mock('../components/ui/ThemeToggleButton.jsx', () => ({
   default: ({ onToggle }) => (
-    <button aria-label="Toggle Theme" onClick={onToggle}>Toggle</button>
+    <button aria-label="Toggle Theme" onClick={onToggle}>
+      Toggle
+    </button>
   ),
 }));
 // Mock AdminDialog to expose open state via role
 vi.mock('../components/AdminDialog.jsx', () => ({
-  default: ({ open, onClose, onApproved }) => (
+  default: ({ open, onClose, onApproved }) =>
     open ? (
       <div role="dialog" aria-label="Admin Dialog">
         <button onClick={onClose}>Close</button>
         <button onClick={onApproved}>Approve</button>
       </div>
-    ) : null
-  ),
+    ) : null,
 }));
 
 // Programmable mock for useData
@@ -36,14 +37,15 @@ const setUseDataState = (state) => {
   globalThis.__useDataState = state;
 };
 vi.mock('../hooks/useData.js', () => ({
-  useData: () => (globalThis.__useDataState || {
-    data: [],
-    usersMap: {},
-    error: '',
-    loading: false,
-    loadingTimeout: false,
-    refresh: { run: vi.fn() },
-  }),
+  useData: () =>
+    globalThis.__useDataState || {
+      data: [],
+      usersMap: {},
+      error: '',
+      loading: false,
+      loadingTimeout: false,
+      refresh: { run: vi.fn() },
+    },
 }));
 
 import App from '../App.jsx';
