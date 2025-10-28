@@ -2,6 +2,7 @@ import log from 'loglevel';
 import prefix from 'loglevel-plugin-prefix';
 
 const isProd = import.meta.env.PROD;
+const isDebug = Boolean(import.meta.env.VITE_DEBUG_MODE || import.meta.env.DEBUG_MODE);
 
 prefix.reg(log);
 prefix.apply(log, {
@@ -10,8 +11,11 @@ prefix.apply(log, {
   levelFormatter: (level) => level.toUpperCase(),
 });
 
-// Set default log level
-const DEFAULT_LEVEL = isProd ? 'warn' : 'info';
-log.setLevel(DEFAULT_LEVEL);
+// Set log level: debug if DEBUG_MODE env var is true, else warn in prod, info in dev
+if (isDebug) {
+  log.setLevel('debug');
+} else {
+  log.setLevel(isProd ? 'warn' : 'info');
+}
 
 export default log;
