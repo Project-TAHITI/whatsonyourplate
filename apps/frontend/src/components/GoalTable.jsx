@@ -3,6 +3,7 @@ import log from '../utils/logger';
 import { EMOJI } from '../constants/emojis';
 import { getWeekRange } from '../utils/dateUtils';
 import { useTheme } from '@mui/material/styles';
+// ...existing code...
 
 // GoalTable - renders a table for daily or weekly goals.
 export default function GoalTable({ type, goalNames, periods, userGoals, openTip, setOpenTip }) {
@@ -79,7 +80,7 @@ export default function GoalTable({ type, goalNames, periods, userGoals, openTip
         </tr>
       </thead>
       <tbody>
-        {goalNames.map((goalName) => (
+        {goalNames.map((goalName, rowIdx) => (
           <tr key={goalName}>
             <th
               style={{
@@ -97,7 +98,7 @@ export default function GoalTable({ type, goalNames, periods, userGoals, openTip
             >
               {goalName}
             </th>
-            {periods.map((period) => {
+            {periods.map((period, colIdx) => {
               const goalsForPeriod = userGoals[period] || [];
               const found = goalsForPeriod.find((g) => g.goal === goalName);
               const done = found ? !!found.completed : false;
@@ -113,6 +114,14 @@ export default function GoalTable({ type, goalNames, periods, userGoals, openTip
                   );
                 }
               };
+              // Tooltip positioning logic
+              const isLastRow = rowIdx === goalNames.length - 1;
+              const isLastCol = colIdx === periods.length - 1;
+              let tooltipClass = 'goal-tooltip';
+              if (isLastRow && isLastCol) tooltipClass += ' tooltip-above-left';
+              else if (isLastRow) tooltipClass += ' tooltip-above';
+              else if (isLastCol) tooltipClass += ' tooltip-left';
+              else tooltipClass += ' tooltip-below';
               return (
                 <td
                   key={period}
@@ -133,23 +142,12 @@ export default function GoalTable({ type, goalNames, periods, userGoals, openTip
                   {done ? EMOJI.CHECK : EMOJI.CROSS}
                   {openTip && openTip.key === tipKey && hasComment && (
                     <div
+                      className={tooltipClass}
                       style={{
-                        position: 'absolute',
-                        left: '50%',
-                        top: '100%',
-                        transform: 'translateX(-50%)',
                         background: theme.palette.background.paper,
                         color: theme.palette.text.primary,
                         border: `1px solid ${theme.palette.divider}`,
-                        borderRadius: 4,
-                        padding: '4px 8px',
-                        fontSize: '0.95em',
-                        zIndex: 10,
                         boxShadow: theme.shadows[2],
-                        marginTop: 2,
-                        minWidth: 80,
-                        maxWidth: 180,
-                        wordBreak: 'break-word',
                       }}
                     >
                       {found.comments}

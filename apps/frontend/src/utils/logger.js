@@ -11,7 +11,7 @@ prefix.apply(log, {
 });
 
 // Set default log level
-const DEFAULT_LEVEL = isProd ? 'info' : 'debug';
+const DEFAULT_LEVEL = isProd ? 'warn' : 'info';
 log.setLevel(DEFAULT_LEVEL);
 
 export default log;
