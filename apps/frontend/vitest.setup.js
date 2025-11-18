@@ -1,6 +1,9 @@
 import '@testing-library/jest-dom/vitest';
 import { expect, vi } from 'vitest';
 
+// Normalize timezone to make date-related tests deterministic across CI/local
+process.env.TZ = process.env.TZ || 'UTC';
+
 // Optional: global fetch mock if needed
 if (!globalThis.fetch) {
   globalThis.fetch = vi.fn();

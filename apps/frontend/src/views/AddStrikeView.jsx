@@ -56,7 +56,15 @@ export default function AddStrikeView({ data, usersMap, setSnackbar, refresh }) 
         } else {
           log.info('Strike added for user:', info.user_id, info);
           setSnackbar({ open: true, message: 'Strike added!', severity: 'success' });
-          refresh?.run?.();
+          // Await refresh so we can use the freshly fetched data for the summary
+          let refreshed;
+          try {
+            refreshed = await refresh?.run?.();
+          } catch (e) {
+            // If refresh fails, log and fall back to existing `data`
+            log.warn('Refresh failed:', e);
+            refreshed = null;
+          }
 
           // Send Telegram notification (best effort)
           const userName = usersMap[info.user_id] || info.user_id;
@@ -77,7 +85,10 @@ export default function AddStrikeView({ data, usersMap, setSnackbar, refresh }) 
             .then(() => log.info('Add Strike Telegram notification sent for', userName))
             .catch((e) => log.warn('Failed to send Telegram notification:', e));
 
-          sendStrikeSummaryReport(data, usersMap)
+          const summaryData = refreshed?.data ?? data;
+          const summaryUsers = refreshed?.usersMap ?? usersMap;
+
+          sendStrikeSummaryReport(summaryData, summaryUsers)
             .then(() => log.info('Strike summary Telegram report sent.'))
             .catch((e) => log.warn('Failed to send strike summary report:', e));
         }

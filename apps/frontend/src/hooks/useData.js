@@ -99,6 +99,8 @@ export function useData() {
 
       setData(trackerData);
       setUsersMap(map);
+      // Return the fetched data so callers can await and use it if needed
+      return { data: trackerData, usersMap: map };
     } catch (err) {
       setError('Could not load tracker or user data');
     } finally {

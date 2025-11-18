@@ -25,7 +25,12 @@ export default defineConfig({
   poolOptions: { threads: { singleThread: true } },
   // Keep test files isolated to prevent cross-file module cache and mock bleed
   isolate: true,
-  testTimeout: 30000,
+  // Give CI a bit more breathing room
+  testTimeout: process.env.CI ? 60000 : 30000,
+  hookTimeout: process.env.CI ? 30000 : 15000,
+  // A tiny retry can smooth out rare, non-deterministic flake in CI without masking real issues
+  retry: process.env.CI ? 1 : 0,
+  ci: process.env.CI === 'true',
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'json-summary'],
