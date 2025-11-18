@@ -81,7 +81,7 @@ describe('AddStrikeView', () => {
     ];
     const usersMap = { u1: 'Alice' };
     const setSnackbar = vi.fn();
-    const refresh = { run: vi.fn() };
+  const refresh = { run: vi.fn().mockResolvedValue({ data, usersMap }) };
 
     // Provide daily onEdit info via mock button
     globalThis.__mockInfo = {
@@ -194,8 +194,8 @@ describe('AddStrikeView', () => {
     // usersMap missing entry -> fallback to user_id
     const usersMap = {};
     const setSnackbar = vi.fn();
-    // Pass no refresh to cover optional chaining branch
-    const refresh = undefined;
+  // Pass no refresh to cover optional chaining branch
+  const refresh = undefined;
 
     // Provide daily info with Date instance
     globalThis.__mockInfo = {
@@ -256,7 +256,7 @@ describe('AddStrikeView', () => {
     ];
     const usersMap = { u4: 'Dora' };
     const setSnackbar = vi.fn();
-    const refresh = { run: vi.fn() };
+  const refresh = { run: vi.fn().mockResolvedValue({ data, usersMap }) };
 
     globalThis.__mockInfo = {
       user_id: 'u4',
@@ -308,7 +308,7 @@ describe('AddStrikeView', () => {
     ];
     const usersMap = { u5: 'Eve' };
     const setSnackbar = vi.fn();
-
+    const refresh = { run: vi.fn().mockResolvedValue({ data, usersMap }) };
     globalThis.__mockInfo = {
       user_id: 'u5',
       goalType: 'daily',
@@ -317,7 +317,7 @@ describe('AddStrikeView', () => {
       comments: '',
     };
 
-    render(<AddStrikeView data={data} usersMap={usersMap} setSnackbar={setSnackbar} />);
+  render(<AddStrikeView data={data} usersMap={usersMap} setSnackbar={setSnackbar} refresh={refresh} />);
     fireEvent.click(screen.getByTestId('trigger-onedit'));
 
     // Snackbar success still occurs

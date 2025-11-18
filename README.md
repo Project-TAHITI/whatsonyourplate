@@ -19,7 +19,5 @@ npx nx generate @nrwl/angular:application ui --style=scss --routing
 3. Run the dev server:
 
 ```bash
-npx nx serve ui
+npx nx dev frontend
 ```
-
-Replace `ui` with your desired app name.
